@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LabStock — Sign In</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif}
+body{
+  background:#f0f4f8;
+  display:flex;align-items:center;justify-content:center;padding:16px;min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 15% 30%, rgba(37,99,235,.1) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 70%, rgba(139,92,246,.07) 0%, transparent 55%);
+}
+.card{
+  width:100%;max-width:400px;
+  background:#fff;border-radius:16px;padding:36px 32px 28px;
+  box-shadow:0 4px 32px rgba(37,99,235,.12),0 1px 4px rgba(0,0,0,.05);
+  border:1px solid #e2e8f0;
+  animation:popIn .35s ease;
+}
+@keyframes popIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.logo{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:26px}
+.logo-icon{
+  width:46px;height:46px;background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  border-radius:12px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(37,99,235,.35);
+}
+.logo-icon svg{width:24px;height:24px;fill:white}
+.logo-text{font-size:1.45rem;font-weight:800;color:#0f172a;letter-spacing:-.02em}
+.logo-text span{color:#2563eb}
+.head{text-align:center;margin-bottom:18px}
+h1{font-size:1.08rem;font-weight:700;color:#0f172a;margin-bottom:3px}
+.sub{font-size:.8rem;color:#94a3b8}
+/* Role tabs */
+.role-tabs{display:flex;gap:4px;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:20px}
+.role-tab{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 10px;border:none;background:none;border-radius:8px;cursor:pointer;
+  font-family:inherit;font-size:.83rem;font-weight:600;color:#64748b;
+  transition:all .15s;
+}
+.role-tab svg{width:15px;height:15px}
+.role-tab.active{background:#fff;color:#2563eb;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.role-tab:not(.active):hover{color:#475569}
+/* Error box */
+.err-box{
+  background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;
+  font-size:.82rem;padding:10px 13px;border-radius:9px;
+  margin-bottom:16px;display:none;align-items:center;gap:8px;line-height:1.4;
+}
+.err-box.show{display:flex}
+.err-box svg{flex-shrink:0;width:15px;height:15px}
+/* Form */
+.grp{margin-bottom:15px}
+label{display:block;font-size:.76rem;font-weight:600;color:#475569;margin-bottom:5px;letter-spacing:.01em}
+.inp-wrap{position:relative}
+.inp-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:#94a3b8}
+.inp-ico svg{width:16px;height:16px;display:block}
+input[type=text],input[type=password]{
+  width:100%;padding:10px 40px 10px 36px;
+  border:1.5px solid #e2e8f0;border-radius:9px;
+  font-size:.88rem;color:#0f172a;background:#fff;
+  outline:none;transition:border-color .15s,box-shadow .15s;font-family:inherit;
+}
+input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+input.invalid{border-color:#ef4444}
+input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
+.eye-btn{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;padding:3px;color:#94a3b8;display:flex;
+}
+.eye-btn:hover{color:#475569}
+.eye-btn svg{width:16px;height:16px;display:block}
+/* Submit */
+.btn-login{
+  width:100%;padding:11px 16px;margin-top:4px;
+  background:#2563eb;color:white;border:none;border-radius:9px;
+  font-size:.92rem;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  transition:background .15s,transform .15s,box-shadow .15s;font-family:inherit;
+  letter-spacing:.01em;
+}
+.btn-login:hover:not(:disabled){background:#1d4ed8;transform:translateY(-1px);box-shadow:0 4px 16px rgba(37,99,235,.38)}
+.btn-login:active:not(:disabled){transform:none}
+.btn-login:disabled{opacity:.62;cursor:not-allowed;transform:none;box-shadow:none}
+/* Spinner */
+.spin{
+  width:17px;height:17px;border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;
+  animation:spin .65s linear infinite;display:none;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-login.loading .spin{display:block}
+.btn-login.loading .btn-txt{display:none}
+/* Attempts warning */
+.attempts-warn{
+  text-align:center;font-size:.74rem;color:#f59e0b;font-weight:500;
+  margin-top:-4px;margin-bottom:12px;display:none;
+}
+.attempts-warn.show{display:block}
+/* Footer hint */
+.hint{text-align:center;font-size:.73rem;color:#94a3b8;margin-top:20px;padding-top:16px;border-top:1px solid #f1f5f9;line-height:1.6}
+.hint code{background:#f8fafc;padding:2px 6px;border-radius:5px;font-size:.72rem;color:#475569;border:1px solid #e2e8f0;font-family:monospace}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.5l-8-4V8.5l8-4.32z"/></svg>
+    </div>
+    <span class="logo-text">Lab<span>Stock</span></span>
+  </div>
+  <div class="head">
+    <h1>Welcome back</h1>
+    <p class="sub">Sign in to access the lab inventory system</p>
+  </div>
+
+  <div class="role-tabs" id="roleTabs">
+    <button class="role-tab active" data-role="admin" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Admin
+    </button>
+    <button class="role-tab" data-role="student" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      Student
+    </button>
+  </div>
+
+  <div class="err-box" id="errBox">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="errTxt"></span>
+  </div>
+
+  <div class="grp">
+    <label for="usr">Username</label>
+    <div class="inp-wrap">
+      <div class="inp-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <input type="text" id="usr" placeholder="admin" autocomplete="username" spellcheck="false">
+    </div>
+  </div>
+
+  <div class="grp">
+    <label for="pwd">Password</label>
+    <div class="inp-wrap">
+      <div class="inp-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <input type="password" id="pwd" placeholder="••••••••" autocomplete="current-password">
+      <button class="eye-btn" id="eyeBtn" type="button" tabindex="-1" aria-label="Toggle password">
+        <svg id="eyeOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg id="eyeOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="attempts-warn" id="attWarn"></div>
+
+  <button class="btn-login" id="loginBtn" type="button">
+    <div class="spin"></div>
+    <span class="btn-txt">Sign In</span>
+  </button>
+
+  <p class="hint" id="hintBox">
+    Default credentials<br>
+    Username: <code>admin</code> &nbsp;|&nbsp; Password: <code>admin123</code><br>
+    <span style="color:#cbd5e1;font-size:.7rem;margin-top:4px;display:block">Change password from Settings after first login</span>
+  </p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var usrEl   = document.getElementById('usr');
+  var pwdEl   = document.getElementById('pwd');
+  var btn     = document.getElementById('loginBtn');
+  var errBox  = document.getElementById('errBox');
+  var errTxt  = document.getElementById('errTxt');
+  var attWarn = document.getElementById('attWarn');
+  var hintBox = document.getElementById('hintBox');
+  var failCount = 0;
+  var selectedRole = 'admin';
+
+  var HINTS = {
+  
+    student: 'Username: <code>student</code> &nbsp;|&nbsp; Password: <code>student123</code>'
+  };
+  var PLACEHOLDERS = {  student: 'student' };
+
+  // Role tab switching
+  document.querySelectorAll('.role-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.role-tab').forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      selectedRole = tab.dataset.role;
+      usrEl.placeholder = PLACEHOLDERS[selectedRole];
+      hintBox.innerHTML = 'Default credentials<br>' + HINTS[selectedRole] +
+        '<br><span style="color:#cbd5e1;font-size:.7rem;margin-top:4px;display:block">' +
+        (selectedRole === 'admin' ? 'Change password from Settings after first login' : 'View-only access to inventory') +
+        '</span>';
+      clearErr();
+      usrEl.focus();
+    });
+  });
+
+  // Toggle password visibility
+  document.getElementById('eyeBtn').addEventListener('click', function () {
+    var show = pwdEl.type === 'password';
+    pwdEl.type = show ? 'text' : 'password';
+    document.getElementById('eyeOn').style.display  = show ? 'none'  : 'block';
+    document.getElementById('eyeOff').style.display = show ? 'block' : 'none';
+  });
+
+  function showErr(msg) {
+    errTxt.textContent = msg;
+    errBox.classList.add('show');
+    usrEl.classList.add('invalid');
+    pwdEl.classList.add('invalid');
+    pwdEl.value = '';
+    setTimeout(function () { usrEl.focus(); }, 50);
+  }
+
+  function clearErr() {
+    errBox.classList.remove('show');
+    usrEl.classList.remove('invalid');
+    pwdEl.classList.remove('invalid');
+  }
+
+  function setLoading(on) {
+    btn.disabled = on;
+    btn.classList.toggle('loading', on);
+  }
+
+  async function doLogin() {
+    clearErr();
+    var username = usrEl.value.trim();
+    var password = pwdEl.value;
+    if (!username) { showErr('Please enter your username.'); return; }
+    if (!password) { showErr('Please enter your password.'); return; }
+
+    setLoading(true);
+    try {
+      var res  = await fetch('/api/login', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, password: password })
+      });
+      var data = await res.json();
+
+      if (res.status === 429) {
+        showErr(data.error || 'Too many attempts. Wait 15 minutes.');
+        attWarn.textContent = '';
+        attWarn.classList.remove('show');
+        return;
+      }
+
+      if (res.ok && data.success) {
+        if (data.role !== selectedRole) {
+          // Credentials valid but belong to the other role — log back out and inform user
+          await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
+          showErr('These credentials belong to the ' + data.role + ' account. Please switch tabs.');
+          return;
+        }
+        window.location.replace('/');
+        return;
+      }
+
+      // Failed login
+      failCount++;
+      showErr(data.error || 'Invalid credentials.');
+      if (failCount >= 3 && failCount < 10) {
+        var left = 10 - failCount;
+        attWarn.textContent = left + ' attempt' + (left === 1 ? '' : 's') + ' remaining before lockout.';
+        attWarn.classList.add('show');
+      }
+    } catch (e) {
+      showErr('Cannot reach server. Make sure it is running.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  btn.addEventListener('click', doLogin);
+  usrEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') pwdEl.focus(); });
+  pwdEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+
+  // Auto-focus
+  usrEl.focus();
+}());
+</script>
+</body>
+</html>
