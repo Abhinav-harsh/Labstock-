@@ -7,6 +7,7 @@
 
 const express    = require('express');
 const session    = require('express-session');
+const MongoStore = require('connect-mongo');
 const bcrypt     = require('bcryptjs');
 const helmet     = require('helmet');
 const rateLimit  = require('express-rate-limit');
@@ -183,20 +184,22 @@ app.use(helmet({
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
-// ─── SESSION (works on Vercel — uses signed cookie, no server-side store needed for basic auth) ──
-// For production, session data is kept in the signed cookie itself (stateless).
-// We use a simple cookie-based approach: store userId/role in the cookie directly.
-// For heavier session needs, use connect-mongo. This is sufficient for auth.
+// ─── SESSION — stored in MongoDB so it persists across Vercel serverless instances ──
 app.use(session({
   secret: process.env.SESSION_SECRET || 'labstock_s3cr3t_key_2024_xK9mP!',
   resave: false,
   saveUninitialized: false,
   rolling: true,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 8 * 60 * 60,
+    autoRemove: 'native'
+  }),
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',                                    // 'lax' works across redirects; 'strict' can block post-redirect
-    secure: process.env.NODE_ENV === 'production',      // FIXED: true on Vercel (HTTPS), false locally
-    maxAge: 8 * 60 * 60 * 1000                         // 8 hours
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 8 * 60 * 60 * 1000
   }
 }));
 
