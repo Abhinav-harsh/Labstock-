@@ -162,11 +162,8 @@ input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
     <span class="btn-txt">Sign In</span>
   </button>
 
-  <p class="hint" id="hintBox">
-    Default credentials<br>
-    Username: <code>admin</code> &nbsp;|&nbsp; Password: <code>admin123</code><br>
-    <span style="color:#cbd5e1;font-size:.7rem;margin-top:4px;display:block">Change password from Settings after first login</span>
-  </p>
+  <!-- Hint box: hidden for admin (default), shown only for student -->
+  <p class="hint" id="hintBox" style="display:none"></p>
 </div>
 
 <script>
@@ -184,10 +181,9 @@ input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
   var selectedRole = 'admin';
 
   var HINTS = {
-  
-    student: 'Username: <code>student</code> &nbsp;|&nbsp; Password: <code>student123</code>'
+    student: 'Default credentials<br>Username: <code>student</code> &nbsp;|&nbsp; Password: <code>student123</code><br><span style="color:#cbd5e1;font-size:.7rem;margin-top:4px;display:block">View-only access to inventory</span>'
   };
-  var PLACEHOLDERS = {  student: 'student' };
+  var PLACEHOLDERS = { admin: 'admin', student: 'student' };
 
   // Role tab switching
   document.querySelectorAll('.role-tab').forEach(function (tab) {
@@ -196,10 +192,15 @@ input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
       tab.classList.add('active');
       selectedRole = tab.dataset.role;
       usrEl.placeholder = PLACEHOLDERS[selectedRole];
-      hintBox.innerHTML = 'Default credentials<br>' + HINTS[selectedRole] +
-        '<br><span style="color:#cbd5e1;font-size:.7rem;margin-top:4px;display:block">' +
-        (selectedRole === 'admin' ? 'Change password from Settings after first login' : 'View-only access to inventory') +
-        '</span>';
+
+      if (selectedRole === 'student') {
+        hintBox.innerHTML = HINTS.student;
+        hintBox.style.display = 'block';
+      } else {
+        hintBox.innerHTML = '';
+        hintBox.style.display = 'none';
+      }
+
       clearErr();
       usrEl.focus();
     });
@@ -259,7 +260,6 @@ input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
 
       if (res.ok && data.success) {
         if (data.role !== selectedRole) {
-          // Credentials valid but belong to the other role — log back out and inform user
           await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
           showErr('These credentials belong to the ' + data.role + ' account. Please switch tabs.');
           return;
