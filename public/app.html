@@ -1,3 +1,4 @@
+cat > /mnt/user-data/outputs/app.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -484,7 +485,8 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
     <!-- SETTINGS -->
     <div class="view" id="view-settings">
       <div class="settings-wrap">
-        <div class="settings-card">
+        <!-- ▼ Change Password: admin-only — students cannot see or use this -->
+        <div class="settings-card admin-only">
           <div class="settings-card-title">Change Password</div>
           <div class="form-group" style="margin-bottom:13px"><label>Current Password</label><input class="form-control" type="password" id="pwd-cur" placeholder="Current password" autocomplete="current-password"></div>
           <div class="form-group" style="margin-bottom:13px"><label>New Password</label><input class="form-control" type="password" id="pwd-new" placeholder="Min 6 characters" autocomplete="new-password"></div>
@@ -493,7 +495,12 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
         </div>
         <div class="settings-card admin-only">
           <div class="settings-card-title">About</div>
-          <p style="font-size:.83rem;color:var(--text2);line-height:1.7">LabStock v2.0 — Real-time qty-split Lab Inventory.<br>Data stored in <code style="background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:.78rem">data/db.json</code> on the server.</p>
+          <p style="font-size:.83rem;color:var(--text2);line-height:1.7">LabStock v2.0 — Real-time qty-split Lab Inventory.<br>Data stored in MongoDB Atlas.</p>
+        </div>
+        <!-- Student-only info card -->
+        <div class="settings-card" id="student-settings-info" style="display:none">
+          <div class="settings-card-title">Account Info</div>
+          <p style="font-size:.83rem;color:var(--text2);line-height:1.7">You are logged in as a <strong>Student</strong> with view-only access.<br>Contact the lab administrator to make any changes.</p>
         </div>
       </div>
       <div class="admin-only" style="margin-top:18px">
@@ -532,7 +539,6 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
         <div class="form-group full"><label>Notes / Description</label><textarea class="form-control" id="f-notes" placeholder="Any additional notes…"></textarea></div>
       </div>
       <input type="hidden" id="f-id">
-      <!-- Edit-only: qty adjustments -->
       <div id="f-qty-adj" style="display:none;margin-top:16px">
         <div class="section-title">Adjust Non-Available Quantities</div>
         <div class="form-grid">
@@ -693,7 +699,12 @@ async function init() {
     document.getElementById('userName').textContent = sess.name || 'User';
     document.getElementById('userRole').textContent = (sess.role==='admin'?'Administrator':'Student');
     document.getElementById('userAv').textContent   = (sess.name||'U').charAt(0).toUpperCase();
-    if (S.role !== 'admin') document.body.classList.add('role-student');
+    if (S.role !== 'admin') {
+      document.body.classList.add('role-student');
+      // Show the student-only info card in Settings
+      var infoCard = document.getElementById('student-settings-info');
+      if (infoCard) infoCard.style.display = 'block';
+    }
     await loadAll();
     renderDashboard(); renderInventory(); renderComponents();
     updateCatFilter(); updateCompCatFilter(); updateIssCatFilter();
@@ -921,7 +932,7 @@ function renderIssued() {
     var od = isOverdue(iss);
     if (stFil==='active')  return mq && mc && iss.status==='active';
     if (stFil==='overdue') return mq && mc && iss.status==='active' && od;
-    return mq && mc; // all
+    return mq && mc;
   });
 
   filtered.sort(function(a,b){
@@ -982,14 +993,12 @@ function renderFaulty() {
   var sevFil = document.getElementById('flt-sev-filter').value;
   var sevCol = {low:'var(--warning)',medium:'var(--orange)',high:'var(--danger)',critical:'#7f1d1d'};
 
-  // Show items that have any faulty or maintenance qty
   var items = S.items.filter(function(i){
     var hasFault = (i.qtyFaulty||0)+(i.qtyMaintenance||0)>0;
     var mq = !q || i.name.toLowerCase().includes(q) || i.serial.toLowerCase().includes(q);
     return hasFault && mq;
   });
 
-  // Apply severity filter using fault records
   if (sevFil) {
     items = items.filter(function(i){
       return S.faults.some(function(f){ return f.itemId===i.id && f.severity===sevFil && f.status!=='fixed'; });
@@ -1374,8 +1383,10 @@ document.getElementById('clearLogsBtn').addEventListener('click',async function(
   catch(e){ notify(e.message,'error'); }
 });
 
-// ── SETTINGS ───────────────────────────────────────────────────────────────────
+// ── SETTINGS — password change is admin-only (enforced server-side too) ────────
 document.getElementById('changePwdBtn').addEventListener('click',async function(){
+  // Extra client-side guard — server enforces this via requireAdmin as well
+  if (S.role !== 'admin') { notify('Password changes are not available for student accounts.','error'); return; }
   var cur=document.getElementById('pwd-cur').value;
   var nw =document.getElementById('pwd-new').value;
   var cfm=document.getElementById('pwd-cfm').value;
@@ -1492,3 +1503,5 @@ init();
 </script>
 </body>
 </html>
+HTMLEOF
+echo "Done"
