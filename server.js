@@ -42,7 +42,8 @@ const ItemSchema = new mongoose.Schema({
 const IssueSchema = new mongoose.Schema({
   id: String, itemId: String, qty: Number, issuedTo: String, studentId: String,
   issueDate: String, returnDate: String, notes: String,
-  status: { type: String, default: 'active' }, createdAt: String, returnedAt: String
+  status: { type: String, default: 'active' }, createdAt: String, returnedAt: String,
+  issuedBy: String  // Name of the person who issued the item (manual input)
 });
 const CategorySchema = new mongoose.Schema({
   id: String, name: String, desc: String
@@ -123,12 +124,12 @@ async function ensureDefaultData() {
     await Item.insertMany(items);
 
     const issues = [
-      { id:uid(), itemId:'i1',  qty:10, issuedTo:'Rahul Sharma',  studentId:'22CS001', issueDate:daysAgo(5),  returnDate:daysAhead(7),  notes:'',            status:'active', createdAt:new Date().toISOString() },
-      { id:uid(), itemId:'i1',  qty:5,  issuedTo:'Priya Singh',   studentId:'22CS045', issueDate:daysAgo(10), returnDate:daysAhead(3),  notes:'Project use',  status:'active', createdAt:new Date().toISOString() },
-      { id:uid(), itemId:'i9',  qty:8,  issuedTo:'Amit Kumar',    studentId:'21CS033', issueDate:daysAgo(15), returnDate:daysAhead(2),  notes:'',            status:'active', createdAt:new Date().toISOString() },
-      { id:uid(), itemId:'i13', qty:3,  issuedTo:'Sneha Patel',   studentId:'22CS078', issueDate:daysAgo(3),  returnDate:daysAhead(14), notes:'',            status:'active', createdAt:new Date().toISOString() },
-      { id:uid(), itemId:'i18', qty:15, issuedTo:'Rohit Verma',   studentId:'21CS099', issueDate:daysAgo(20), returnDate:daysAhead(1),  notes:'',            status:'active', createdAt:new Date().toISOString() },
-      { id:uid(), itemId:'i2',  qty:6,  issuedTo:'Kavya Reddy',   studentId:'23CS012', issueDate:daysAgo(2),  returnDate:daysAhead(5),  notes:'Lab project', status:'active', createdAt:new Date().toISOString() },
+      { id:uid(), itemId:'i1',  qty:10, issuedTo:'Rahul Sharma',  studentId:'22CS001', issueDate:daysAgo(5),  returnDate:daysAhead(7),  notes:'',            status:'active', createdAt:new Date().toISOString(), issuedBy:'Dr. Sharma' },
+      { id:uid(), itemId:'i1',  qty:5,  issuedTo:'Priya Singh',   studentId:'22CS045', issueDate:daysAgo(10), returnDate:daysAhead(3),  notes:'Project use',  status:'active', createdAt:new Date().toISOString(), issuedBy:'Prof. Verma' },
+      { id:uid(), itemId:'i9',  qty:8,  issuedTo:'Amit Kumar',    studentId:'21CS033', issueDate:daysAgo(15), returnDate:daysAhead(2),  notes:'',            status:'active', createdAt:new Date().toISOString(), issuedBy:'Lab Assistant Ravi' },
+      { id:uid(), itemId:'i13', qty:3,  issuedTo:'Sneha Patel',   studentId:'22CS078', issueDate:daysAgo(3),  returnDate:daysAhead(14), notes:'',            status:'active', createdAt:new Date().toISOString(), issuedBy:'Dr. Sharma' },
+      { id:uid(), itemId:'i18', qty:15, issuedTo:'Rohit Verma',   studentId:'21CS099', issueDate:daysAgo(20), returnDate:daysAhead(1),  notes:'',            status:'active', createdAt:new Date().toISOString(), issuedBy:'Prof. Gupta' },
+      { id:uid(), itemId:'i2',  qty:6,  issuedTo:'Kavya Reddy',   studentId:'23CS012', issueDate:daysAgo(2),  returnDate:daysAhead(5),  notes:'Lab project', status:'active', createdAt:new Date().toISOString(), issuedBy:'Lab Assistant Ravi' },
     ];
     await Issue.insertMany(issues);
 
@@ -366,9 +367,11 @@ app.post('/api/items/:id/issue', requireAdmin, async (req, res) => {
   try {
     const item = await Item.findOne({ id: req.params.id });
     if (!item) return res.status(404).json({ error: 'Item not found.' });
-    const { issuedTo, studentId, issueDate, returnDate, notes, qty } = req.body;
+    const { issuedTo, studentId, issueDate, returnDate, notes, qty, issuedBy } = req.body;
     if (!issuedTo || !studentId || !issueDate)
       return res.status(400).json({ error: 'Student name, ID and issue date are required.' });
+    if (!issuedBy || !String(issuedBy).trim())
+      return res.status(400).json({ error: 'Issued by (your name) is required.' });
     const allIssues = await Issue.find({ itemId: req.params.id, status: 'active' }).lean();
     const issueQty  = Math.max(1, parseInt(qty) || 1);
     const computed  = computeQtys(item.toObject(), allIssues);
@@ -378,10 +381,11 @@ app.post('/api/items/:id/issue', requireAdmin, async (req, res) => {
       id: uid(), itemId: req.params.id, qty: issueQty,
       issuedTo: String(issuedTo).trim(), studentId: String(studentId).trim(),
       issueDate, returnDate: returnDate || '', notes: notes ? String(notes).trim() : '',
-      status: 'active', createdAt: new Date().toISOString()
+      status: 'active', createdAt: new Date().toISOString(),
+      issuedBy: String(issuedBy).trim()  // Manual input: name of person issuing the item
     });
     await issue.save();
-    await addLog('Issued', item.name, req.session.name, `Qty: ${issueQty} → ${issuedTo} (${studentId})`);
+    await addLog('Issued', item.name, req.session.name, `Qty: ${issueQty} → ${issuedTo} (${studentId}) by ${issuedBy}`);
     const updatedIssues = await Issue.find({ itemId: req.params.id, status: 'active' }).lean();
     const q = computeQtys(item.toObject(), updatedIssues);
     res.json({ issue: issue.toObject(), item: { ...item.toObject(), ...q } });
