@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -439,6 +438,7 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
             <th data-col-iss="qty">Qty Issued ↕</th>
             <th>Issued To</th>
             <th>Student ID</th>
+            <th>Issued By</th>
             <th data-col-iss="issueDate">Issue Date ↕</th>
             <th data-col-iss="returnDate">Return By ↕</th>
             <th>Status</th>
@@ -570,6 +570,7 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
       </div>
       <div class="form-grid">
         <div class="form-group"><label>Qty to Issue *</label><input class="form-control" id="iss-qty" type="number" min="1" value="1"></div>
+        <div class="form-group"><label>Issued By (Your Name) *</label><input class="form-control" id="iss-by" placeholder="e.g. Dr. Sharma, Lab Assistant"></div>
         <div class="form-group"><label>Student Name *</label><input class="form-control" id="iss-name" placeholder="Full name"></div>
         <div class="form-group"><label>Student ID / Roll No. *</label><input class="form-control" id="iss-sid" placeholder="e.g. 22CS045"></div>
         <div class="form-group"><label>Issue Date *</label><input class="form-control" id="iss-idate" type="date"></div>
@@ -771,7 +772,7 @@ function renderDashboard() {
     var od = isOverdue(iss);
     return '<div class="log-row">'+
       '<div class="log-av">'+esc((iss.issuedTo||'?').charAt(0))+'</div>'+
-      '<div class="log-info"><div class="log-name">'+esc(iss.itemName||'?')+'</div><div class="log-meta">'+esc(iss.issuedTo||'—')+' · '+esc(iss.studentId||'')+' · Qty: '+iss.qty+'</div></div>'+
+      '<div class="log-info"><div class="log-name">'+esc(iss.itemName||'?')+'</div><div class="log-meta">'+esc(iss.issuedTo||'—')+' · '+esc(iss.studentId||'')+' · Qty: '+iss.qty+(iss.issuedBy?' · By: '+esc(iss.issuedBy):'')+'</div></div>'+
       '<div class="log-due '+(od?'overdue':'ok')+'">'+(iss.returnDate||'—')+'<br><span style="font-size:.67rem">'+(od?'⚠ OVERDUE':'✓ OK')+'</span></div>'+
     '</div>';
   }).join('') : emptyState('No items currently issued');
@@ -927,7 +928,7 @@ function renderIssued() {
   var catFil = document.getElementById('iss-cat').value;
 
   var filtered = S.issues.filter(function(iss){
-    var mq = !q || (iss.itemName||'').toLowerCase().includes(q) || (iss.issuedTo||'').toLowerCase().includes(q) || (iss.studentId||'').toLowerCase().includes(q) || (iss.itemSerial||'').toLowerCase().includes(q);
+    var mq = !q || (iss.itemName||'').toLowerCase().includes(q) || (iss.issuedTo||'').toLowerCase().includes(q) || (iss.studentId||'').toLowerCase().includes(q) || (iss.itemSerial||'').toLowerCase().includes(q) || (iss.issuedBy||'').toLowerCase().includes(q);
     var mc = !catFil || iss.catId===catFil;
     var od = isOverdue(iss);
     if (stFil==='active')  return mq && mc && iss.status==='active';
@@ -957,6 +958,7 @@ function renderIssued() {
       '<td class="td-mono" style="font-weight:700;color:var(--accent)">'+iss.qty+'</td>'+
       '<td><strong>'+esc(iss.issuedTo||'—')+'</strong></td>'+
       '<td class="td-mono">'+esc(iss.studentId||'—')+'</td>'+
+      '<td>'+esc(iss.issuedBy||'—')+'</td>'+
       '<td class="td-mono">'+(iss.issueDate||'—')+'</td>'+
       '<td class="td-mono" style="'+(od&&iss.status==='active'?'color:var(--danger);font-weight:600':'')+'">'+
         (iss.returnDate||'—')+(od&&iss.status==='active'?' ⚠':'')+
@@ -966,7 +968,7 @@ function renderIssued() {
         (iss.status==='active'?'<button class="icon-btn ret-btn" title="Mark as returned" data-return-iss="'+iss.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg></button>':'')+
       '</div></td>'+
     '</tr>';
-  }).join('') : '<tr><td colspan="11">'+emptyState('No issue records found')+'</td></tr>';
+  }).join('') : '<tr><td colspan="12">'+emptyState('No issue records found')+'</td></tr>';
   renderPg('iss-pg',S.issPage,pages,function(p){ S.issPage=p; renderIssued(); });
 }
 
@@ -1183,6 +1185,7 @@ function openIssueModal(itemId) {
   document.getElementById('iss-id').value    =itemId;
   document.getElementById('iss-qty').value   ='1';
   document.getElementById('iss-qty').max     =av;
+  document.getElementById('iss-by').value    ='';
   document.getElementById('iss-name').value  ='';
   document.getElementById('iss-sid').value   ='';
   document.getElementById('iss-idate').value =new Date().toISOString().split('T')[0];
@@ -1192,22 +1195,24 @@ function openIssueModal(itemId) {
 }
 
 document.getElementById('confirmIssueBtn').addEventListener('click',async function(){
-  var itemId =document.getElementById('iss-id').value;
-  var qty    =parseInt(document.getElementById('iss-qty').value)||1;
-  var name   =document.getElementById('iss-name').value.trim();
-  var sid    =document.getElementById('iss-sid').value.trim();
-  var idate  =document.getElementById('iss-idate').value;
-  var rdate  =document.getElementById('iss-rdate').value;
-  var notes  =document.getElementById('iss-notes').value.trim();
+  var itemId  =document.getElementById('iss-id').value;
+  var qty     =parseInt(document.getElementById('iss-qty').value)||1;
+  var issuedBy=document.getElementById('iss-by').value.trim();
+  var name    =document.getElementById('iss-name').value.trim();
+  var sid     =document.getElementById('iss-sid').value.trim();
+  var idate   =document.getElementById('iss-idate').value;
+  var rdate   =document.getElementById('iss-rdate').value;
+  var notes   =document.getElementById('iss-notes').value.trim();
+  if(!issuedBy){notify('Please enter your name (Issued By)','error');return;}
   if(!name||!sid||!idate){notify('Student name, ID and issue date are required','error');return;}
   if(qty<1){notify('Quantity must be at least 1','error');return;}
   setBtnLoad('confirmIssueBtn',true);
   try {
-    var res=await api('POST','/api/items/'+itemId+'/issue',{issuedTo:name,studentId:sid,issueDate:idate,returnDate:rdate,notes:notes,qty:qty});
+    var res=await api('POST','/api/items/'+itemId+'/issue',{issuedTo:name,studentId:sid,issueDate:idate,returnDate:rdate,notes:notes,qty:qty,issuedBy:issuedBy});
     var idx=S.items.findIndex(function(i){return i.id===itemId;});
     if(idx>-1) S.items[idx]=res.item;
     S.issues.unshift({...res.issue, itemName:S.items[idx]?S.items[idx].name:'', itemSerial:S.items[idx]?S.items[idx].serial:'', catId:S.items[idx]?S.items[idx].catId:''});
-    notify('Issued '+qty+' unit(s) to '+name,'success');
+    notify('Issued '+qty+' unit(s) to '+name+' by '+issuedBy,'success');
     closeModal('issueModal');
     await loadAll();
     renderInventory(); renderIssued(); renderDashboard(); updateBadges(); renderComponents();
@@ -1425,82 +1430,4 @@ document.getElementById('logoutBtn').addEventListener('click',async function(){
   window.location.href='/login';
 });
 
-// ── TOP ADD ────────────────────────────────────────────────────────────────────
-document.getElementById('topAddBtn').addEventListener('click',openAddItem);
-document.getElementById('invAddBtn').addEventListener('click',openAddItem);
-
-// ── MODALS ─────────────────────────────────────────────────────────────────────
-function openModal(id){ document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(function(overlay){
-  overlay.addEventListener('click',function(e){ if(e.target===overlay) closeModal(overlay.id); });
-});
-document.querySelectorAll('[data-close]').forEach(function(btn){
-  btn.addEventListener('click',function(){ closeModal(btn.dataset.close); });
-});
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(function(m){ m.classList.remove('open'); });
-});
-
-// ── SIDEBAR ────────────────────────────────────────────────────────────────────
-document.getElementById('burgerBtn').addEventListener('click',function(){
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sbOverlay').classList.toggle('show');
-});
-function closeSidebar(){
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sbOverlay').classList.remove('show');
-}
-document.getElementById('sbOverlay').addEventListener('click',closeSidebar);
-
-// ── PAGINATION ─────────────────────────────────────────────────────────────────
-function renderPg(containerId,current,total,onPage){
-  var el=document.getElementById(containerId);
-  if(total<=1){el.innerHTML='';return;}
-  var btns='',start=Math.max(1,current-2),end=Math.min(total,current+2);
-  if(start>1) btns+='<button class="page-btn" data-p="1">1</button>'+(start>2?'<span style="padding:0 3px;color:var(--text3)">…</span>':'');
-  for(var p=start;p<=end;p++) btns+='<button class="page-btn'+(p===current?' active':'')+'" data-p="'+p+'">'+p+'</button>';
-  if(end<total) btns+=(end<total-1?'<span style="padding:0 3px;color:var(--text3)">…</span>':'')+'<button class="page-btn" data-p="'+total+'">'+total+'</button>';
-  el.innerHTML='<span class="page-info">Page '+current+' of '+total+'</span><div class="page-btns">'+btns+'</div>';
-  el.querySelectorAll('[data-p]').forEach(function(b){ b.addEventListener('click',function(){ onPage(+b.dataset.p); }); });
-}
-
-// ── NOTIFICATIONS ──────────────────────────────────────────────────────────────
-function notify(msg,type){
-  var bar=document.getElementById('notifBar');
-  var n=document.createElement('div');
-  n.className='notif'+(type?' '+type:'');
-  n.innerHTML='<span>'+esc(msg)+'</span><button class="notif-x" aria-label="Dismiss">×</button>';
-  n.querySelector('.notif-x').addEventListener('click',function(){n.remove();});
-  bar.appendChild(n);
-  setTimeout(function(){
-    n.style.animation='slideOut .3s forwards';
-    setTimeout(function(){n.remove();},300);
-  },4500);
-}
-
-// ── HELPERS ────────────────────────────────────────────────────────────────────
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function hi(text,q){
-  if(!q) return esc(text);
-  var re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
-  return esc(text).replace(re,'<mark>$1</mark>');
-}
-function catName(id){ var c=S.categories.find(function(x){return x.id===id;}); return c?c.name:'Unknown'; }
-function isOverdue(iss){
-  if(!iss.returnDate) return false;
-  return new Date(iss.returnDate) < new Date(new Date().toDateString());
-}
-function emptyState(msg){
-  return '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg><p>'+esc(msg)+'</p></div>';
-}
-function setBtnLoad(id,on){
-  var el=document.getElementById(id); if(el){el.disabled=on;}
-}
-
-// ── START ──────────────────────────────────────────────────────────────────────
-init();
-</script>
-</body>
-</html>
-
+// ── TOP ADD ────────────────────────────────────────────
