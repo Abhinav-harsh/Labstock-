@@ -1,157 +1,170 @@
-cat > /home/claude/labstock/server.js << 'SERVEREOF'
 'use strict';
 // ─────────────────────────────────────────────────────────────────────────────
-//  LabStock v2 – Lab Inventory Management Server
-//  STOCK MODEL:
-//    Each item has: totalQty, availableQty, faultyQty, maintenanceQty, retiredQty
-//    Issuing creates an issue-record and decrements availableQty
-//    Returning an issue-record increments availableQty
+//  LabStock – Lab Inventory Management Server
+//  Local:  node server.js  →  http://localhost:3000
+//  Vercel: deployed automatically via vercel.json
 // ─────────────────────────────────────────────────────────────────────────────
 
-const express   = require('express');
-const session   = require('express-session');
-const bcrypt    = require('bcryptjs');
-const helmet    = require('helmet');
-const rateLimit = require('express-rate-limit');
-const compress  = require('compression');
-const path      = require('path');
-const fs        = require('fs');
+const express    = require('express');
+const session    = require('express-session');
+const MongoStore = require('connect-mongo');
+const bcrypt     = require('bcryptjs');
+const helmet     = require('helmet');
+const rateLimit  = require('express-rate-limit');
+const compression= require('compression');
+const path       = require('path');
 
-const PORT     = process.env.PORT || 3000;
-const DATA_DIR = path.join(__dirname, 'data');
-const DB_PATH  = path.join(DATA_DIR, 'db.json');
+// ─── DB: MongoDB Atlas via Mongoose ──────────────────────────────────────────
+// Set MONGODB_URI in Vercel environment variables (Project → Settings → Env Vars)
+// Free cluster at https://cloud.mongodb.com
+const mongoose = require('mongoose');
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+let dbConnected = false;
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
-
-function readDB() {
-  if (!fs.existsSync(DB_PATH)) return createFreshDB();
-  try {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-    if (!db.users)      db.users      = [];
-    if (!db.categories) db.categories = [];
-    if (!db.items)      db.items      = [];
-    if (!db.issues)     db.issues     = [];   // NEW: separate issue records
-    if (!db.faults)     db.faults     = [];
-    if (!db.logs)       db.logs       = [];
-    // Migrate old items: if item has no availableQty, compute it
-    db.items.forEach(it => {
-      if (it.availableQty === undefined) {
-        it.availableQty   = it.status === 'available' ? (it.qty || 1) : 0;
-        it.faultyQty      = it.status === 'faulty'      ? (it.qty || 1) : 0;
-        it.maintenanceQty = it.status === 'maintenance' ? (it.qty || 1) : 0;
-        it.retiredQty     = it.status === 'retired'     ? (it.qty || 1) : 0;
-        it.totalQty       = it.qty || 1;
-        // issued qty is derived: totalQty - available - faulty - maintenance - retired
-      }
-    });
-    return db;
-  } catch (e) {
-    console.error('DB read error, recreating:', e.message);
-    return createFreshDB();
-  }
+async function connectDB() {
+  if (dbConnected) return;
+  const uri = process.env.MONGODB_URI;
+  if (!uri) throw new Error('MONGODB_URI environment variable is not set.');
+  await mongoose.connect(uri);
+  dbConnected = true;
 }
 
-function writeDB(db) { fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2), 'utf8'); }
+// ─── Mongoose Schemas ─────────────────────────────────────────────────────────
+const UserSchema = new mongoose.Schema({
+  id: String, username: String, passwordHash: String, name: String, role: String
+});
+const ItemSchema = new mongoose.Schema({
+  id: String, name: String, serial: String, catId: String,
+  totalQty: Number, qtyFaulty: { type: Number, default: 0 },
+  qtyMaintenance: { type: Number, default: 0 }, qtyRetired: { type: Number, default: 0 },
+  location: String, notes: String, createdAt: String
+});
+const IssueSchema = new mongoose.Schema({
+  id: String, itemId: String, qty: Number, issuedTo: String, studentId: String,
+  issueDate: String, returnDate: String, notes: String,
+  status: { type: String, default: 'active' }, createdAt: String, returnedAt: String
+});
+const CategorySchema = new mongoose.Schema({
+  id: String, name: String, desc: String
+});
+const FaultSchema = new mongoose.Schema({
+  id: String, itemId: String, qty: Number, desc: String, reportedBy: String,
+  date: String, severity: String, status: { type: String, default: 'open' }, fixedAt: String
+});
+const LogSchema = new mongoose.Schema({
+  id: String, time: String, action: String, item: String, user: String, details: String
+});
 
-function addLog(db, action, item, user, details) {
-  db.logs.unshift({ id: uid(), time: new Date().toISOString(), action: String(action), item: String(item), user: String(user), details: String(details || '') });
-  if (db.logs.length > 1000) db.logs = db.logs.slice(0, 1000);
+const User     = mongoose.models.User     || mongoose.model('User',     UserSchema);
+const Item     = mongoose.models.Item     || mongoose.model('Item',     ItemSchema);
+const Issue    = mongoose.models.Issue    || mongoose.model('Issue',    IssueSchema);
+const Category = mongoose.models.Category || mongoose.model('Category', CategorySchema);
+const Fault    = mongoose.models.Fault    || mongoose.model('Fault',    FaultSchema);
+const Log      = mongoose.models.Log      || mongoose.model('Log',      LogSchema);
+
+// ─── DB HELPERS ──────────────────────────────────────────────────────────────
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
-// Compute derived issuedQty for an item
-function issuedQty(item) {
-  return Math.max(0, item.totalQty - item.availableQty - item.faultyQty - item.maintenanceQty - item.retiredQty);
+async function addLog(action, item, user, details) {
+  const log = new Log({ id: uid(), time: new Date().toISOString(), action: String(action), item: String(item), user: String(user), details: String(details || '') });
+  await log.save();
+  await Log.deleteMany({ _id: { $nin: (await Log.find().sort({ time: -1 }).limit(1000).select('_id')).map(l => l._id) } });
 }
 
-function createFreshDB() {
-  const adminHash   = bcrypt.hashSync('admin123', 10);
-  const studentHash = bcrypt.hashSync('student123', 10);
-
-  function daysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().split('T')[0]; }
-  function daysAhead(n) { const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().split('T')[0]; }
-
-  const db = {
-    users: [
-      { id: 'u1', username: 'admin',   passwordHash: adminHash,   name: 'Lab Administrator', role: 'admin'   },
+async function ensureDefaultData() {
+  const userCount = await User.countDocuments();
+  if (userCount === 0) {
+    const adminHash   = await bcrypt.hash('admin123', 10);
+    const studentHash = await bcrypt.hash('student123', 10);
+    await User.insertMany([
+      { id: 'u1', username: 'admin',   passwordHash: adminHash,   name: 'Lab Administrator', role: 'admin' },
       { id: 'u2', username: 'student', passwordHash: studentHash, name: 'Student',            role: 'student' }
-    ],
-    categories: [
-      { id: 'cat1', name: 'Microcontrollers',      desc: 'Arduino, ESP32, Raspberry Pi, etc.' },
-      { id: 'cat2', name: 'Sensors',               desc: 'Temperature, humidity, ultrasonic, IR, etc.' },
-      { id: 'cat3', name: 'Communication Modules', desc: 'Bluetooth, WiFi, RF, GSM modules.' },
-      { id: 'cat4', name: 'Power Supply',          desc: 'Adapters, batteries, regulators.' },
-      { id: 'cat5', name: 'Display Modules',       desc: 'LCD, OLED, 7-segment, LED matrix.' },
-      { id: 'cat6', name: 'Actuators',             desc: 'Servo motors, DC motors, stepper motors.' },
-      { id: 'cat7', name: 'Passive Components',    desc: 'Resistors, capacitors, breadboards, wires.' },
-      { id: 'cat8', name: 'Tools & Equipment',     desc: 'Multimeters, soldering irons, oscilloscopes.' }
-    ],
-    items: [],
-    issues: [],
-    faults: [],
-    logs: []
-  };
+    ]);
 
-  // Helper: make item with new stock model
-  // totalQty, availableQty, faultyQty, maintenanceQty, retiredQty
-  function mkItem(name, serial, catId, totalQty, availableQty, faultyQty, maintenanceQty, retiredQty, location, notes) {
-    return { id: uid(), name, serial, catId, totalQty, availableQty, faultyQty: faultyQty||0, maintenanceQty: maintenanceQty||0, retiredQty: retiredQty||0, location: location||'', notes: notes||'', createdAt: new Date().toISOString() };
+    const cats = [
+      { id:'cat1', name:'Microcontrollers',      desc:'Arduino, ESP32, Raspberry Pi, etc.' },
+      { id:'cat2', name:'Sensors',               desc:'Temperature, humidity, ultrasonic, IR, etc.' },
+      { id:'cat3', name:'Communication Modules', desc:'Bluetooth, WiFi, RF, GSM modules.' },
+      { id:'cat4', name:'Power Supply',          desc:'Adapters, batteries, regulators.' },
+      { id:'cat5', name:'Display Modules',       desc:'LCD, OLED, 7-segment, LED matrix.' },
+      { id:'cat6', name:'Actuators',             desc:'Servo motors, DC motors, stepper motors.' },
+      { id:'cat7', name:'Passive Components',    desc:'Resistors, capacitors, breadboards, wires.' },
+      { id:'cat8', name:'Tools & Equipment',     desc:'Multimeters, soldering irons, oscilloscopes.' }
+    ];
+    await Category.insertMany(cats);
+
+    function daysAgo(n)  { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split('T')[0]; }
+    function daysAhead(n){ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().split('T')[0]; }
+
+    const items = [
+      { id:'i1',  name:'Arduino Uno R3',     serial:'ARD-001', catId:'cat1', totalQty:50, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf A-1', notes:'' },
+      { id:'i2',  name:'Arduino Nano',       serial:'ARD-002', catId:'cat1', totalQty:30, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf A-1', notes:'' },
+      { id:'i3',  name:'ESP32 Dev Board',    serial:'ESP-001', catId:'cat3', totalQty:20, qtyFaulty:2, qtyMaintenance:0, qtyRetired:0, location:'Shelf A-2', notes:'' },
+      { id:'i4',  name:'Raspberry Pi 4B',    serial:'RPI-001', catId:'cat1', totalQty:10, qtyFaulty:0, qtyMaintenance:1, qtyRetired:0, location:'Shelf A-1', notes:'Project use' },
+      { id:'i5',  name:'DHT22 Sensor',       serial:'SEN-001', catId:'cat2', totalQty:40, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf B-1', notes:'' },
+      { id:'i6',  name:'HC-SR04 Ultrasonic', serial:'SEN-002', catId:'cat2', totalQty:35, qtyFaulty:5, qtyMaintenance:0, qtyRetired:0, location:'Shelf B-1', notes:'' },
+      { id:'i7',  name:'HC-05 Bluetooth',    serial:'COM-001', catId:'cat3', totalQty:15, qtyFaulty:3, qtyMaintenance:0, qtyRetired:0, location:'Shelf C-1', notes:'3 modules damaged' },
+      { id:'i8',  name:'16x2 LCD Display',   serial:'DSP-001', catId:'cat5', totalQty:25, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf D-1', notes:'' },
+      { id:'i9',  name:'SG90 Servo Motor',   serial:'ACT-001', catId:'cat6', totalQty:40, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf E-1', notes:'' },
+      { id:'i10', name:'PIR Motion Sensor',  serial:'SEN-003', catId:'cat2', totalQty:20, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf B-2', notes:'' },
+      { id:'i11', name:'NodeMCU ESP8266',    serial:'ESP-002', catId:'cat3', totalQty:18, qtyFaulty:0, qtyMaintenance:3, qtyRetired:0, location:'Shelf A-3', notes:'3 units firmware update needed' },
+      { id:'i12', name:'L298N Motor Driver', serial:'ACT-002', catId:'cat6', totalQty:12, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf E-2', notes:'' },
+      { id:'i13', name:'0.96" OLED Display', serial:'DSP-002', catId:'cat5', totalQty:22, qtyFaulty:1, qtyMaintenance:0, qtyRetired:0, location:'Shelf D-1', notes:'' },
+      { id:'i14', name:'Digital Multimeter', serial:'TOOL-001',catId:'cat8', totalQty:8,  qtyFaulty:0, qtyMaintenance:1, qtyRetired:0, location:'Shelf F-1', notes:'' },
+      { id:'i15', name:'Soldering Iron 40W', serial:'TOOL-002',catId:'cat8', totalQty:6,  qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf F-2', notes:'' },
+      { id:'i16', name:'IR Sensor Module',   serial:'SEN-004', catId:'cat2', totalQty:50, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf B-3', notes:'' },
+      { id:'i17', name:'Power Supply 5V/2A', serial:'PWR-001', catId:'cat4', totalQty:15, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf G-1', notes:'' },
+      { id:'i18', name:'Breadboard 830pt',   serial:'BRD-001', catId:'cat7', totalQty:60, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf H-1', notes:'' },
+      { id:'i19', name:'Jumper Wires Set',   serial:'JMP-001', catId:'cat7', totalQty:80, qtyFaulty:0, qtyMaintenance:0, qtyRetired:0, location:'Shelf H-2', notes:'' },
+      { id:'i20', name:'MQ-2 Gas Sensor',    serial:'SEN-005', catId:'cat2', totalQty:10, qtyFaulty:4, qtyMaintenance:0, qtyRetired:0, location:'Shelf B-4', notes:'Calibration issue' }
+    ];
+    await Item.insertMany(items);
+
+    const issues = [
+      { id:uid(), itemId:'i1',  qty:10, issuedTo:'Rahul Sharma',  studentId:'22CS001', issueDate:daysAgo(5),  returnDate:daysAhead(7),  notes:'',            status:'active', createdAt:new Date().toISOString() },
+      { id:uid(), itemId:'i1',  qty:5,  issuedTo:'Priya Singh',   studentId:'22CS045', issueDate:daysAgo(10), returnDate:daysAhead(3),  notes:'Project use',  status:'active', createdAt:new Date().toISOString() },
+      { id:uid(), itemId:'i9',  qty:8,  issuedTo:'Amit Kumar',    studentId:'21CS033', issueDate:daysAgo(15), returnDate:daysAhead(2),  notes:'',            status:'active', createdAt:new Date().toISOString() },
+      { id:uid(), itemId:'i13', qty:3,  issuedTo:'Sneha Patel',   studentId:'22CS078', issueDate:daysAgo(3),  returnDate:daysAhead(14), notes:'',            status:'active', createdAt:new Date().toISOString() },
+      { id:uid(), itemId:'i18', qty:15, issuedTo:'Rohit Verma',   studentId:'21CS099', issueDate:daysAgo(20), returnDate:daysAhead(1),  notes:'',            status:'active', createdAt:new Date().toISOString() },
+      { id:uid(), itemId:'i2',  qty:6,  issuedTo:'Kavya Reddy',   studentId:'23CS012', issueDate:daysAgo(2),  returnDate:daysAhead(5),  notes:'Lab project', status:'active', createdAt:new Date().toISOString() },
+    ];
+    await Issue.insertMany(issues);
+
+    const faults = [
+      { id:uid(), itemId:'i7',  qty:3, desc:'Modules burned out, pin 3 not responding.', reportedBy:'Lab Incharge', date:daysAgo(8), severity:'high',   status:'open' },
+      { id:uid(), itemId:'i20', qty:4, desc:'Sensor gives wrong readings, needs replacement.', reportedBy:'Priya Singh', date:daysAgo(2), severity:'medium', status:'open' },
+      { id:uid(), itemId:'i6',  qty:5, desc:'IR emitter LEDs blown, need replacement.', reportedBy:'Lab Incharge', date:daysAgo(5), severity:'medium', status:'open' },
+      { id:uid(), itemId:'i3',  qty:2, desc:'WiFi antenna broken, boards non-functional.', reportedBy:'Amit Kumar', date:daysAgo(3), severity:'low',    status:'open' },
+    ];
+    await Fault.insertMany(faults);
+
+    await addLog('System Init', 'Database', 'System', 'Fresh database created with sample data');
   }
 
-  const items = [
-    mkItem('Arduino Uno R3',     'ARD-001', 'cat1', 50, 40, 2, 0, 0, 'Shelf A-1', ''),
-    mkItem('Arduino Nano',       'ARD-002', 'cat1', 30, 28, 0, 2, 0, 'Shelf A-1', ''),
-    mkItem('ESP32 Dev Board',    'ESP-001', 'cat3', 20, 17, 1, 0, 0, 'Shelf A-2', ''),
-    mkItem('Raspberry Pi 4B',    'RPI-001', 'cat1', 10,  8, 0, 0, 0, 'Shelf A-1', ''),
-    mkItem('DHT22 Sensor',       'SEN-001', 'cat2', 60, 55, 0, 0, 0, 'Shelf B-1', ''),
-    mkItem('HC-SR04 Ultrasonic', 'SEN-002', 'cat2', 40, 36, 4, 0, 0, 'Shelf B-1', ''),
-    mkItem('HC-05 Bluetooth',    'COM-001', 'cat3', 15,  9, 6, 0, 0, 'Shelf C-1', 'Some units burned out'),
-    mkItem('16x2 LCD Display',   'DSP-001', 'cat5', 35, 33, 0, 2, 0, 'Shelf D-1', ''),
-    mkItem('SG90 Servo Motor',   'ACT-001', 'cat6', 25, 19, 0, 0, 0, 'Shelf E-1', ''),
-    mkItem('PIR Motion Sensor',  'SEN-003', 'cat2', 30, 27, 3, 0, 0, 'Shelf B-2', ''),
-    mkItem('NodeMCU ESP8266',    'ESP-002', 'cat3', 18, 13, 0, 5, 0, 'Shelf A-3', 'Firmware update batch'),
-    mkItem('L298N Motor Driver', 'ACT-002', 'cat6', 20, 18, 2, 0, 0, 'Shelf E-2', ''),
-    mkItem('0.96" OLED Display', 'DSP-002', 'cat5', 22, 18, 0, 0, 0, 'Shelf D-1', ''),
-    mkItem('Digital Multimeter', 'TOOL-001','cat8', 12, 10, 1, 1, 0, 'Shelf F-1', ''),
-    mkItem('Soldering Iron 40W', 'TOOL-002','cat8',  8,  7, 0, 1, 0, 'Shelf F-2', ''),
-    mkItem('IR Sensor Module',   'SEN-004', 'cat2', 45, 42, 3, 0, 0, 'Shelf B-3', ''),
-    mkItem('Power Supply 5V/2A', 'PWR-001', 'cat4', 20, 18, 0, 2, 0, 'Shelf G-1', ''),
-    mkItem('Breadboard 830pt',   'BRD-001', 'cat7', 60, 44, 0, 0, 0, 'Shelf H-1', ''),
-    mkItem('Jumper Wires Set',   'JMP-001', 'cat7',100, 85, 0, 0, 5, 'Shelf H-2', ''),
-    mkItem('MQ-2 Gas Sensor',    'SEN-005', 'cat2', 15, 12, 3, 0, 0, 'Shelf B-4', 'Calibration issue on some')
-  ];
-  db.items = items;
-
-  // Seed some issue records (reducing availableQty already done above)
-  const issues = [
-    { id: uid(), itemId: items[0].id, itemName: 'Arduino Uno R3',   qty: 5,  issuedTo: 'Rahul Sharma',  studentId: '22CS001', issueDate: daysAgo(5),  returnDate: daysAhead(7),  status: 'issued',   notes: 'Project work',    returnedAt: null },
-    { id: uid(), itemId: items[0].id, itemName: 'Arduino Uno R3',   qty: 5,  issuedTo: 'Priya Singh',   studentId: '22CS045', issueDate: daysAgo(10), returnDate: daysAhead(3),  status: 'issued',   notes: 'IoT assignment',  returnedAt: null },
-    { id: uid(), itemId: items[3].id, itemName: 'Raspberry Pi 4B',  qty: 2,  issuedTo: 'Amit Kumar',    studentId: '21CS033', issueDate: daysAgo(15), returnDate: daysAhead(2),  status: 'issued',   notes: 'Final year proj', returnedAt: null },
-    { id: uid(), itemId: items[8].id, itemName: 'SG90 Servo Motor', qty: 6,  issuedTo: 'Sneha Patel',   studentId: '22CS078', issueDate: daysAgo(3),  returnDate: daysAhead(14), status: 'issued',   notes: 'Robotics lab',    returnedAt: null },
-    { id: uid(), itemId: items[17].id,itemName: 'Breadboard 830pt', qty: 10, issuedTo: 'Rohit Verma',   studentId: '21CS099', issueDate: daysAgo(20), returnDate: daysAgo(1),    status: 'overdue',  notes: 'Lab practicals',  returnedAt: null },
-    { id: uid(), itemId: items[4].id, itemName: 'DHT22 Sensor',     qty: 5,  issuedTo: 'Ankit Gupta',   studentId: '22CS112', issueDate: daysAgo(8),  returnDate: daysAhead(5),  status: 'issued',   notes: 'Weather station', returnedAt: null },
-    { id: uid(), itemId: items[12].id,itemName: '0.96" OLED Display',qty:4,  issuedTo: 'Meera Joshi',   studentId: '23CS015', issueDate: daysAgo(2),  returnDate: daysAhead(10), status: 'issued',   notes: 'Display project', returnedAt: null },
-    { id: uid(), itemId: items[2].id, itemName: 'ESP32 Dev Board',  qty: 3,  issuedTo: 'Raj Patel',     studentId: '23CS041', issueDate: daysAgo(12), returnDate: daysAgo(2),    status: 'overdue',  notes: 'WiFi project',    returnedAt: null }
-  ];
-  db.issues = issues;
-
-  // Add faults
-  db.faults = [
-    { id: uid(), itemId: items[6].id,  desc: 'Module burned out, pin 3 not responding.',   reportedBy: 'Lab Incharge', date: daysAgo(8), severity: 'high'   },
-    { id: uid(), itemId: items[5].id,  desc: 'Intermittent trigger issues on 4 units.',    reportedBy: 'Priya Singh',  date: daysAgo(2), severity: 'medium' },
-    { id: uid(), itemId: items[19].id, desc: 'Sensor gives wrong readings, recalibrate.',  reportedBy: 'Rahul Sharma', date: daysAgo(5), severity: 'medium' }
-  ];
-
-  addLog(db, 'System Init', 'Database', 'System', 'Fresh database with sample data');
-  writeDB(db);
-  return db;
+  // Ensure student account always exists
+  const student = await User.findOne({ role: 'student' });
+  if (!student) {
+    const studentHash = await bcrypt.hash('student123', 10);
+    await new User({ id: 'u2', username: 'student', passwordHash: studentHash, name: 'Student', role: 'student' }).save();
+  }
 }
 
-// ─── EXPRESS SETUP ────────────────────────────────────────────────────────────
+function computeQtys(item, issues) {
+  const activeIssues = issues.filter(iss => String(iss.itemId) === String(item.id) && iss.status === 'active');
+  const qtyIssued = activeIssues.reduce((s, iss) => s + (iss.qty || 1), 0);
+  const qtyFaulty = item.qtyFaulty || 0;
+  const qtyMaintenance = item.qtyMaintenance || 0;
+  const qtyRetired = item.qtyRetired || 0;
+  const qtyAvailable = Math.max(0, item.totalQty - qtyIssued - qtyFaulty - qtyMaintenance - qtyRetired);
+  return { qtyAvailable, qtyIssued, qtyFaulty, qtyMaintenance, qtyRetired, totalQty: item.totalQty };
+}
+
+// ─── EXPRESS APP ─────────────────────────────────────────────────────────────
 const app = express();
-app.use(compress());
+
+app.use(compression());
 app.set('trust proxy', 1);
 
 app.use(helmet({
@@ -171,18 +184,40 @@ app.use(helmet({
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
+// ─── SESSION — stored in MongoDB so it persists across Vercel serverless instances ──
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'labstock_v2_s3cr3t_xK9mP_2024!',
+  secret: process.env.SESSION_SECRET || 'labstock_s3cr3t_key_2024_xK9mP!',
   resave: false,
   saveUninitialized: false,
   rolling: true,
-  cookie: { httpOnly: true, sameSite: 'strict', secure: false, maxAge: 8 * 60 * 60 * 1000 }
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    ttl: 8 * 60 * 60,
+    autoRemove: 'native'
+  }),
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 8 * 60 * 60 * 1000
+  }
 }));
 
+// ─── RATE LIMIT ──────────────────────────────────────────────────────────────
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, max: 10, skipSuccessfulRequests: true,
   message: { error: 'Too many failed login attempts. Please wait 15 minutes.' },
   standardHeaders: true, legacyHeaders: false
+});
+
+// ─── DB MIDDLEWARE — connect before every request ─────────────────────────────
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (e) {
+    res.status(503).json({ error: 'Database not configured. Set MONGODB_URI in environment variables.' });
+  }
 });
 
 // ─── AUTH MIDDLEWARE ──────────────────────────────────────────────────────────
@@ -191,38 +226,45 @@ function requireAuth(req, res, next) {
   if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'Not authenticated' });
   return res.redirect('/login');
 }
+
 function requireAdmin(req, res, next) {
   if (req.session && req.session.userId && req.session.role === 'admin') return next();
   if (req.session && req.session.userId) return res.status(403).json({ error: 'Admin access required.' });
   return res.status(401).json({ error: 'Not authenticated' });
 }
 
-// ─── PAGE ROUTES ──────────────────────────────────────────────────────────────
-app.get('/', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'public', 'app.html')));
+// ─── STATIC / PAGES ──────────────────────────────────────────────────────────
+app.use('/assets', express.static(path.join(__dirname, 'public', 'assets')));
+
+app.get('/', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'app.html'));
+});
 app.get('/login', (req, res) => {
   if (req.session && req.session.userId) return res.redirect('/');
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 app.get('/public/*', (req, res) => res.redirect('/'));
 
-// ─── AUTH API ─────────────────────────────────────────────────────────────────
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
 app.post('/api/login', loginLimiter, async (req, res) => {
   try {
+    await ensureDefaultData();
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'Username and password are required.' });
-    const db   = readDB();
-    const user = db.users.find(u => u.username.toLowerCase() === String(username).toLowerCase().trim());
+    const user = await User.findOne({ username: { $regex: new RegExp(`^${String(username).trim()}$`, 'i') } });
     if (!user) return res.status(401).json({ error: 'Invalid username or password.' });
-    const ok = await bcrypt.compare(String(password), user.passwordHash);
-    if (!ok) return res.status(401).json({ error: 'Invalid username or password.' });
-    req.session.userId = user.id; req.session.username = user.username;
-    req.session.name = user.name; req.session.role = user.role;
+    const match = await bcrypt.compare(String(password), user.passwordHash);
+    if (!match) return res.status(401).json({ error: 'Invalid username or password.' });
+    req.session.userId   = user.id;
+    req.session.username = user.username;
+    req.session.name     = user.name;
+    req.session.role     = user.role;
     req.session.save(err => {
-      if (err) return res.status(500).json({ error: 'Session error.' });
-      addLog(db, 'Login', '—', user.name, 'Logged in'); writeDB(db);
+      if (err) return res.status(500).json({ error: 'Session error, please try again.' });
+      addLog('Login', '—', user.name, 'Logged in successfully').catch(() => {});
       res.json({ success: true, name: user.name, role: user.role });
     });
-  } catch (e) { res.status(500).json({ error: 'Server error.' }); }
+  } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
 app.post('/api/logout', (req, res) => {
@@ -238,285 +280,301 @@ app.post('/api/change-password', requireAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both fields are required.' });
-    if (String(newPassword).length < 6) return res.status(400).json({ error: 'Min 6 characters.' });
-    const db = readDB();
-    const user = db.users.find(u => u.id === req.session.userId);
+    if (String(newPassword).length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+    const user = await User.findOne({ id: req.session.userId });
     if (!user) return res.status(404).json({ error: 'User not found.' });
-    if (!await bcrypt.compare(String(currentPassword), user.passwordHash))
-      return res.status(401).json({ error: 'Current password is incorrect.' });
+    const match = await bcrypt.compare(String(currentPassword), user.passwordHash);
+    if (!match) return res.status(401).json({ error: 'Current password is incorrect.' });
     user.passwordHash = await bcrypt.hash(String(newPassword), 10);
-    addLog(db, 'Password Changed', '—', req.session.name, ''); writeDB(db);
+    await user.save();
+    await addLog('Password Changed', '—', req.session.name, '');
     res.json({ success: true });
-  } catch (e) { res.status(500).json({ error: 'Server error.' }); }
+  } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
 // ─── ITEMS API ────────────────────────────────────────────────────────────────
-app.get('/api/items', requireAuth, (req, res) => {
-  try { res.json(readDB().items); } catch (e) { res.status(500).json({ error: 'Server error.' }); }
+app.get('/api/items', requireAuth, async (req, res) => {
+  try {
+    const items  = await Item.find().lean();
+    const issues = await Issue.find({ status: 'active' }).lean();
+    const enriched = items.map(item => ({ ...item, ...computeQtys(item, issues) }));
+    res.json(enriched);
+  } catch (e) { res.status(500).json({ error: 'Server error.' }); }
 });
 
-app.post('/api/items', requireAdmin, (req, res) => {
+app.post('/api/items', requireAdmin, async (req, res) => {
   try {
-    const { name, serial, catId, totalQty, availableQty, faultyQty, maintenanceQty, retiredQty, location, notes } = req.body;
-    if (!name || !String(name).trim()) return res.status(400).json({ error: 'Item name is required.' });
-    if (!serial || !String(serial).trim()) return res.status(400).json({ error: 'Serial/code is required.' });
+    const { name, serial, catId, totalQty, location, notes } = req.body;
+    if (!name || !String(name).trim())   return res.status(400).json({ error: 'Item name is required.' });
+    if (!serial|| !String(serial).trim()) return res.status(400).json({ error: 'Serial number is required.' });
     if (!catId) return res.status(400).json({ error: 'Category is required.' });
-    const db = readDB();
-    if (db.items.find(i => i.serial.toLowerCase() === String(serial).toLowerCase().trim()))
-      return res.status(409).json({ error: 'Serial/code already exists.' });
-    const total = Math.max(1, parseInt(totalQty) || 1);
-    const avail = Math.max(0, Math.min(total, parseInt(availableQty) !== undefined ? parseInt(availableQty) : total));
-    const faulty = Math.max(0, parseInt(faultyQty) || 0);
-    const maint  = Math.max(0, parseInt(maintenanceQty) || 0);
-    const retired= Math.max(0, parseInt(retiredQty) || 0);
-    if (avail + faulty + maint + retired > total)
-      return res.status(400).json({ error: 'Sum of qty breakdown cannot exceed total quantity.' });
-    const item = { id: uid(), name: String(name).trim(), serial: String(serial).trim().toUpperCase(), catId: String(catId), totalQty: total, availableQty: avail, faultyQty: faulty, maintenanceQty: maint, retiredQty: retired, location: String(location||'').trim(), notes: String(notes||'').trim(), createdAt: new Date().toISOString() };
-    db.items.push(item);
-    addLog(db, 'Added', item.name, req.session.name, `Serial: ${item.serial}, Total: ${total}`);
-    writeDB(db); res.status(201).json(item);
+    const exists = await Item.findOne({ serial: { $regex: new RegExp(`^${String(serial).trim()}$`, 'i') } });
+    if (exists) return res.status(409).json({ error: 'Serial number already exists.' });
+    const item = new Item({
+      id: uid(), name: String(name).trim(), serial: String(serial).trim().toUpperCase(),
+      catId: String(catId), totalQty: Math.max(1, parseInt(totalQty) || 1),
+      qtyFaulty: 0, qtyMaintenance: 0, qtyRetired: 0,
+      location: String(location || '').trim(), notes: String(notes || '').trim(),
+      createdAt: new Date().toISOString()
+    });
+    await item.save();
+    await addLog('Added', item.name, req.session.name, `Serial: ${item.serial}, Qty: ${item.totalQty}`);
+    res.status(201).json({ ...item.toObject(), qtyAvailable: item.totalQty, qtyIssued: 0 });
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
-app.put('/api/items/:id', requireAdmin, (req, res) => {
+app.put('/api/items/:id', requireAdmin, async (req, res) => {
   try {
-    const db  = readDB();
-    const idx = db.items.findIndex(i => i.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Item not found.' });
-    const { name, serial, catId, totalQty, availableQty, faultyQty, maintenanceQty, retiredQty, location, notes } = req.body;
-    if (!name || !String(name).trim()) return res.status(400).json({ error: 'Item name is required.' });
-    if (!serial || !String(serial).trim()) return res.status(400).json({ error: 'Serial is required.' });
+    const item = await Item.findOne({ id: req.params.id });
+    if (!item) return res.status(404).json({ error: 'Item not found.' });
+    const { name, serial, catId, totalQty, qtyFaulty, qtyMaintenance, qtyRetired, location, notes } = req.body;
+    if (!name || !String(name).trim())    return res.status(400).json({ error: 'Item name is required.' });
+    if (!serial|| !String(serial).trim()) return res.status(400).json({ error: 'Serial number is required.' });
     if (!catId) return res.status(400).json({ error: 'Category is required.' });
-    const dup = db.items.find(i => i.serial.toLowerCase() === String(serial).toLowerCase().trim() && i.id !== req.params.id);
-    if (dup) return res.status(409).json({ error: 'Serial already in use.' });
-    const total  = Math.max(1, parseInt(totalQty) || 1);
-    const avail  = Math.max(0, parseInt(availableQty) || 0);
-    const faulty = Math.max(0, parseInt(faultyQty) || 0);
-    const maint  = Math.max(0, parseInt(maintenanceQty) || 0);
-    const ret    = Math.max(0, parseInt(retiredQty) || 0);
-    const curIssued = issuedQty(db.items[idx]);
-    if (avail + faulty + maint + ret + curIssued > total)
-      return res.status(400).json({ error: `Qty breakdown (${avail+faulty+maint+ret} + ${curIssued} currently issued) exceeds total ${total}.` });
-    db.items[idx] = { ...db.items[idx], name: String(name).trim(), serial: String(serial).trim().toUpperCase(), catId: String(catId), totalQty: total, availableQty: avail, faultyQty: faulty, maintenanceQty: maint, retiredQty: ret, location: String(location||'').trim(), notes: String(notes||'').trim() };
-    addLog(db, 'Edited', db.items[idx].name, req.session.name, `Total: ${total}, Avail: ${avail}`);
-    writeDB(db); res.json(db.items[idx]);
+    const dup = await Item.findOne({ serial: { $regex: new RegExp(`^${String(serial).trim()}$`, 'i') }, id: { $ne: req.params.id } });
+    if (dup) return res.status(409).json({ error: 'Serial number already in use.' });
+    item.name           = String(name).trim();
+    item.serial         = String(serial).trim().toUpperCase();
+    item.catId          = String(catId);
+    item.totalQty       = Math.max(1, parseInt(totalQty) || item.totalQty);
+    item.qtyFaulty      = Math.max(0, parseInt(qtyFaulty) ?? item.qtyFaulty);
+    item.qtyMaintenance = Math.max(0, parseInt(qtyMaintenance) ?? item.qtyMaintenance);
+    item.qtyRetired     = Math.max(0, parseInt(qtyRetired) ?? item.qtyRetired);
+    item.location       = String(location || '').trim();
+    item.notes          = String(notes || '').trim();
+    await item.save();
+    await addLog('Edited', item.name, req.session.name, `Total qty: ${item.totalQty}`);
+    const issues = await Issue.find({ itemId: item.id, status: 'active' }).lean();
+    res.json({ ...item.toObject(), ...computeQtys(item.toObject(), issues) });
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
-app.delete('/api/items/:id', requireAdmin, (req, res) => {
+app.delete('/api/items/:id', requireAdmin, async (req, res) => {
   try {
-    const db  = readDB();
-    const itm = db.items.find(i => i.id === req.params.id);
-    if (!itm) return res.status(404).json({ error: 'Item not found.' });
-    const openIssues = db.issues.filter(is => is.itemId === req.params.id && is.status !== 'returned');
-    if (openIssues.length) return res.status(400).json({ error: `Cannot delete: ${openIssues.length} unit(s) currently issued. Return them first.` });
-    db.items  = db.items.filter(i => i.id !== req.params.id);
-    db.issues = db.issues.filter(is => is.itemId !== req.params.id);
-    db.faults = db.faults.filter(f => f.itemId !== req.params.id);
-    addLog(db, 'Deleted', itm.name, req.session.name, `Serial: ${itm.serial}`);
-    writeDB(db); res.json({ success: true });
+    const item = await Item.findOne({ id: req.params.id });
+    if (!item) return res.status(404).json({ error: 'Item not found.' });
+    await Item.deleteOne({ id: req.params.id });
+    await Issue.deleteMany({ itemId: req.params.id });
+    await Fault.deleteMany({ itemId: req.params.id });
+    await addLog('Deleted', item.name, req.session.name, `Serial: ${item.serial}`);
+    res.json({ success: true });
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
-// Update stock quantities only (faulty/maintenance/retired adjustments)
-app.post('/api/items/:id/stock', requireAdmin, (req, res) => {
+// ─── ISSUE API ────────────────────────────────────────────────────────────────
+app.post('/api/items/:id/issue', requireAdmin, async (req, res) => {
   try {
-    const db  = readDB();
-    const idx = db.items.findIndex(i => i.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Item not found.' });
-    const { field, delta } = req.body; // field: 'faultyQty'|'maintenanceQty'|'retiredQty', delta: +/-n
-    const item = db.items[idx];
-    const d = parseInt(delta);
-    if (!['faultyQty','maintenanceQty','retiredQty'].includes(field)) return res.status(400).json({ error: 'Invalid field.' });
-    const newVal = (item[field] || 0) + d;
-    if (newVal < 0) return res.status(400).json({ error: 'Cannot go below 0.' });
-    // Moving from/to available
-    const newAvail = item.availableQty - d;
-    if (newAvail < 0) return res.status(400).json({ error: 'Not enough available units.' });
-    item[field] = newVal;
-    item.availableQty = newAvail;
-    const actionMap = { faultyQty: 'Mark Faulty', maintenanceQty: 'Send Maintenance', retiredQty: 'Retire' };
-    addLog(db, actionMap[field], item.name, req.session.name, `${d > 0 ? '+' : ''}${d} units`);
-    writeDB(db); res.json(item);
+    const item = await Item.findOne({ id: req.params.id });
+    if (!item) return res.status(404).json({ error: 'Item not found.' });
+    const { issuedTo, studentId, issueDate, returnDate, notes, qty } = req.body;
+    if (!issuedTo || !studentId || !issueDate)
+      return res.status(400).json({ error: 'Student name, ID and issue date are required.' });
+    const allIssues = await Issue.find({ itemId: req.params.id, status: 'active' }).lean();
+    const issueQty  = Math.max(1, parseInt(qty) || 1);
+    const computed  = computeQtys(item.toObject(), allIssues);
+    if (issueQty > computed.qtyAvailable)
+      return res.status(400).json({ error: `Only ${computed.qtyAvailable} unit(s) available.` });
+    const issue = new Issue({
+      id: uid(), itemId: req.params.id, qty: issueQty,
+      issuedTo: String(issuedTo).trim(), studentId: String(studentId).trim(),
+      issueDate, returnDate: returnDate || '', notes: notes ? String(notes).trim() : '',
+      status: 'active', createdAt: new Date().toISOString()
+    });
+    await issue.save();
+    await addLog('Issued', item.name, req.session.name, `Qty: ${issueQty} → ${issuedTo} (${studentId})`);
+    const updatedIssues = await Issue.find({ itemId: req.params.id, status: 'active' }).lean();
+    const q = computeQtys(item.toObject(), updatedIssues);
+    res.json({ issue: issue.toObject(), item: { ...item.toObject(), ...q } });
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
-// ─── ISSUES API ───────────────────────────────────────────────────────────────
-app.get('/api/issues', requireAuth, (req, res) => {
-  try { res.json(readDB().issues); } catch (e) { res.status(500).json({ error: 'Server error.' }); }
-});
-
-app.post('/api/items/:id/issue', requireAdmin, (req, res) => {
+app.post('/api/issues/:id/return', requireAdmin, async (req, res) => {
   try {
-    const db  = readDB();
-    const idx = db.items.findIndex(i => i.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Item not found.' });
-    const { issuedTo, studentId, qty, issueDate, returnDate, notes } = req.body;
-    if (!issuedTo || !studentId || !issueDate) return res.status(400).json({ error: 'Student name, ID and issue date are required.' });
-    const qtyNum = Math.max(1, parseInt(qty) || 1);
-    if (db.items[idx].availableQty < qtyNum)
-      return res.status(400).json({ error: `Only ${db.items[idx].availableQty} unit(s) available. Cannot issue ${qtyNum}.` });
-    db.items[idx].availableQty -= qtyNum;
-    const issue = { id: uid(), itemId: req.params.id, itemName: db.items[idx].name, qty: qtyNum, issuedTo: String(issuedTo).trim(), studentId: String(studentId).trim(), issueDate, returnDate: returnDate||'', notes: String(notes||'').trim(), status: 'issued', issuedBy: req.session.name, createdAt: new Date().toISOString(), returnedAt: null };
-    db.issues.push(issue);
-    addLog(db, 'Issued', db.items[idx].name, req.session.name, `${qtyNum} unit(s) to ${issuedTo} (${studentId})`);
-    writeDB(db); res.json({ item: db.items[idx], issue });
-  } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
-});
-
-app.post('/api/issues/:issueId/return', requireAdmin, (req, res) => {
-  try {
-    const db  = readDB();
-    const issIdx = db.issues.findIndex(is => is.id === req.params.issueId);
-    if (issIdx === -1) return res.status(404).json({ error: 'Issue record not found.' });
-    const issue = db.issues[issIdx];
+    const issue = await Issue.findOne({ id: req.params.id });
+    if (!issue) return res.status(404).json({ error: 'Issue record not found.' });
     if (issue.status === 'returned') return res.status(400).json({ error: 'Already returned.' });
-    const itemIdx = db.items.findIndex(i => i.id === issue.itemId);
-    if (itemIdx !== -1) db.items[itemIdx].availableQty += issue.qty;
-    db.issues[issIdx] = { ...issue, status: 'returned', returnedAt: new Date().toISOString() };
-    addLog(db, 'Returned', issue.itemName, req.session.name, `${issue.qty} unit(s) from ${issue.issuedTo}`);
-    writeDB(db);
-    res.json({ item: itemIdx !== -1 ? db.items[itemIdx] : null, issue: db.issues[issIdx] });
+    issue.status     = 'returned';
+    issue.returnedAt = new Date().toISOString();
+    await issue.save();
+    const item = await Item.findOne({ id: issue.itemId });
+    if (item) await addLog('Returned', item.name, req.session.name, `Qty: ${issue.qty} from ${issue.issuedTo}`);
+    const updatedIssues = item ? await Issue.find({ itemId: item.id, status: 'active' }).lean() : [];
+    const q = item ? computeQtys(item.toObject(), updatedIssues) : {};
+    res.json({ issue: issue.toObject(), item: item ? { ...item.toObject(), ...q } : null });
+  } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
+});
+
+app.get('/api/issues', requireAuth, async (req, res) => {
+  try {
+    const issues = await Issue.find().sort({ createdAt: -1 }).lean();
+    const items  = await Item.find().lean();
+    const enriched = issues.map(iss => {
+      const item = items.find(i => i.id === iss.itemId);
+      return { ...iss, itemName: item ? item.name : 'Unknown', itemSerial: item ? item.serial : '', catId: item ? item.catId : '' };
+    });
+    res.json(enriched);
+  } catch (e) { res.status(500).json({ error: 'Server error.' }); }
+});
+
+// ─── COMPONENTS (aggregated view) ────────────────────────────────────────────
+app.get('/api/components', requireAuth, async (req, res) => {
+  try {
+    const items  = await Item.find().lean();
+    const issues = await Issue.find({ status: 'active' }).lean();
+    const groups = {};
+    items.forEach(item => {
+      const key = item.name.trim().toLowerCase();
+      const q   = computeQtys(item, issues);
+      if (!groups[key]) {
+        groups[key] = { name: item.name, catId: item.catId, totalQty: 0, qtyAvailable: 0, qtyIssued: 0, qtyFaulty: 0, qtyMaintenance: 0, qtyRetired: 0, shelves: new Set(), items: [] };
+      }
+      const g = groups[key];
+      g.totalQty       += q.totalQty;
+      g.qtyAvailable   += q.qtyAvailable;
+      g.qtyIssued      += q.qtyIssued;
+      g.qtyFaulty      += q.qtyFaulty;
+      g.qtyMaintenance += q.qtyMaintenance;
+      g.qtyRetired     += q.qtyRetired;
+      if (item.location) g.shelves.add(item.location);
+      g.items.push({ id: item.id, serial: item.serial, totalQty: q.totalQty, qtyAvailable: q.qtyAvailable, qtyIssued: q.qtyIssued, qtyFaulty: q.qtyFaulty, qtyMaintenance: q.qtyMaintenance, location: item.location });
+    });
+    const result = Object.values(groups).map(g => ({ ...g, shelves: Array.from(g.shelves) })).sort((a, b) => a.name.localeCompare(b.name));
+    res.json(result);
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
 // ─── CATEGORIES API ───────────────────────────────────────────────────────────
-app.get('/api/categories', requireAuth, (req, res) => {
-  try { res.json(readDB().categories); } catch (e) { res.status(500).json({ error: 'Server error.' }); }
+app.get('/api/categories', requireAuth, async (req, res) => {
+  try { res.json(await Category.find().lean()); } catch (e) { res.status(500).json({ error: 'Server error.' }); }
 });
 
-app.post('/api/categories', requireAdmin, (req, res) => {
+app.post('/api/categories', requireAdmin, async (req, res) => {
   try {
     const { name, desc } = req.body;
     if (!name || !String(name).trim()) return res.status(400).json({ error: 'Category name is required.' });
-    const db = readDB();
-    if (db.categories.find(c => c.name.toLowerCase() === String(name).toLowerCase().trim()))
-      return res.status(409).json({ error: 'Category already exists.' });
-    const cat = { id: uid(), name: String(name).trim(), desc: String(desc||'').trim() };
-    db.categories.push(cat); addLog(db, 'Category Added', cat.name, req.session.name, '');
-    writeDB(db); res.status(201).json(cat);
+    const exists = await Category.findOne({ name: { $regex: new RegExp(`^${String(name).trim()}$`, 'i') } });
+    if (exists) return res.status(409).json({ error: 'Category already exists.' });
+    const cat = new Category({ id: uid(), name: String(name).trim(), desc: String(desc || '').trim() });
+    await cat.save();
+    await addLog('Category Added', cat.name, req.session.name, '');
+    res.status(201).json(cat.toObject());
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
-app.put('/api/categories/:id', requireAdmin, (req, res) => {
+app.put('/api/categories/:id', requireAdmin, async (req, res) => {
   try {
-    const db = readDB(); const idx = db.categories.findIndex(c => c.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Category not found.' });
-    const { name, desc } = req.body;
-    if (!name || !String(name).trim()) return res.status(400).json({ error: 'Name required.' });
-    const dup = db.categories.find(c => c.name.toLowerCase() === String(name).toLowerCase().trim() && c.id !== req.params.id);
-    if (dup) return res.status(409).json({ error: 'Name already in use.' });
-    db.categories[idx] = { ...db.categories[idx], name: String(name).trim(), desc: String(desc||'').trim() };
-    addLog(db, 'Category Edited', db.categories[idx].name, req.session.name, '');
-    writeDB(db); res.json(db.categories[idx]);
-  } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
-});
-
-app.delete('/api/categories/:id', requireAdmin, (req, res) => {
-  try {
-    const db = readDB(); const cat = db.categories.find(c => c.id === req.params.id);
+    const cat = await Category.findOne({ id: req.params.id });
     if (!cat) return res.status(404).json({ error: 'Category not found.' });
-    if (db.items.some(i => i.catId === req.params.id))
-      return res.status(400).json({ error: 'Cannot delete: items exist. Reassign first.' });
-    db.categories = db.categories.filter(c => c.id !== req.params.id);
-    addLog(db, 'Category Deleted', cat.name, req.session.name, ''); writeDB(db);
+    const { name, desc } = req.body;
+    if (!name || !String(name).trim()) return res.status(400).json({ error: 'Category name is required.' });
+    const dup = await Category.findOne({ name: { $regex: new RegExp(`^${String(name).trim()}$`, 'i') }, id: { $ne: req.params.id } });
+    if (dup) return res.status(409).json({ error: 'Category name already in use.' });
+    cat.name = String(name).trim();
+    cat.desc = String(desc || '').trim();
+    await cat.save();
+    await addLog('Category Edited', cat.name, req.session.name, '');
+    res.json(cat.toObject());
+  } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
+});
+
+app.delete('/api/categories/:id', requireAdmin, async (req, res) => {
+  try {
+    const cat = await Category.findOne({ id: req.params.id });
+    if (!cat) return res.status(404).json({ error: 'Category not found.' });
+    const hasItems = await Item.findOne({ catId: req.params.id });
+    if (hasItems) return res.status(400).json({ error: 'Cannot delete: items exist in this category.' });
+    await Category.deleteOne({ id: req.params.id });
+    await addLog('Category Deleted', cat.name, req.session.name, '');
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
 // ─── FAULTS API ───────────────────────────────────────────────────────────────
-app.get('/api/faults', requireAuth, (req, res) => {
-  try { res.json(readDB().faults); } catch (e) { res.status(500).json({ error: 'Server error.' }); }
+app.get('/api/faults', requireAuth, async (req, res) => {
+  try { res.json(await Fault.find().lean()); } catch (e) { res.status(500).json({ error: 'Server error.' }); }
 });
 
-app.post('/api/faults', requireAdmin, (req, res) => {
+app.post('/api/faults', requireAdmin, async (req, res) => {
   try {
-    const { itemId, qty, desc, reportedBy, date, severity } = req.body;
+    const { itemId, desc, reportedBy, date, severity, qty } = req.body;
     if (!itemId || !desc) return res.status(400).json({ error: 'Item and description are required.' });
-    const db = readDB(); const idx = db.items.findIndex(i => i.id === itemId);
-    if (idx === -1) return res.status(404).json({ error: 'Item not found.' });
-    const qtyNum = Math.max(1, parseInt(qty) || 1);
-    if (db.items[idx].availableQty < qtyNum)
-      return res.status(400).json({ error: `Only ${db.items[idx].availableQty} available units to mark faulty.` });
-    db.items[idx].availableQty -= qtyNum;
-    db.items[idx].faultyQty    += qtyNum;
-    const fault = { id: uid(), itemId, qty: qtyNum, desc: String(desc).trim(), reportedBy: String(reportedBy||req.session.name).trim(), date: date||new Date().toISOString().split('T')[0], severity: severity||'medium' };
-    db.faults.push(fault);
-    addLog(db, 'Fault Reported', db.items[idx].name, req.session.name, `${qtyNum} unit(s), severity: ${fault.severity}`);
-    writeDB(db); res.json({ fault, item: db.items[idx] });
+    const item = await Item.findOne({ id: itemId });
+    if (!item) return res.status(404).json({ error: 'Item not found.' });
+    const faultQty = Math.max(1, parseInt(qty) || 1);
+    const allIssues = await Issue.find({ itemId: itemId, status: 'active' }).lean();
+    const computed  = computeQtys(item.toObject(), allIssues);
+    if (faultQty > computed.qtyAvailable)
+      return res.status(400).json({ error: `Only ${computed.qtyAvailable} unit(s) available to mark as faulty.` });
+    item.qtyFaulty = (item.qtyFaulty || 0) + faultQty;
+    await item.save();
+    const fault = new Fault({ id: uid(), itemId, qty: faultQty, desc: String(desc).trim(), reportedBy: String(reportedBy || req.session.name).trim(), date: date || new Date().toISOString().split('T')[0], severity: severity || 'medium', status: 'open' });
+    await fault.save();
+    await addLog('Fault Reported', item.name, req.session.name, `Qty: ${faultQty}, Severity: ${fault.severity}`);
+    const updatedIssues = await Issue.find({ itemId: itemId, status: 'active' }).lean();
+    const q = computeQtys(item.toObject(), updatedIssues);
+    res.json({ fault: fault.toObject(), item: { ...item.toObject(), ...q } });
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
-app.post('/api/faults/:faultId/fix', requireAdmin, (req, res) => {
+app.post('/api/faults/:faultId/fix', requireAdmin, async (req, res) => {
   try {
-    const db = readDB(); const fi = db.faults.findIndex(f => f.id === req.params.faultId);
-    if (fi === -1) return res.status(404).json({ error: 'Fault record not found.' });
-    const fault = db.faults[fi];
-    const idx   = db.items.findIndex(i => i.id === fault.itemId);
-    if (idx !== -1) {
-      const fixQty = Math.min(fault.qty, db.items[idx].faultyQty);
-      db.items[idx].faultyQty    -= fixQty;
-      db.items[idx].availableQty += fixQty;
-      addLog(db, 'Fixed', db.items[idx].name, req.session.name, `${fixQty} unit(s) back to available`);
-    }
-    db.faults.splice(fi, 1); writeDB(db);
-    res.json({ item: idx !== -1 ? db.items[idx] : null });
+    const fault = await Fault.findOne({ id: req.params.faultId });
+    if (!fault) return res.status(404).json({ error: 'Fault not found.' });
+    if (fault.status === 'fixed') return res.status(400).json({ error: 'Already fixed.' });
+    const item = await Item.findOne({ id: fault.itemId });
+    if (!item) return res.status(404).json({ error: 'Item not found.' });
+    item.qtyFaulty = Math.max(0, (item.qtyFaulty || 0) - fault.qty);
+    await item.save();
+    fault.status  = 'fixed';
+    fault.fixedAt = new Date().toISOString();
+    await fault.save();
+    await addLog('Fixed', item.name, req.session.name, `Qty: ${fault.qty} returned to available`);
+    const issues = await Issue.find({ itemId: item.id, status: 'active' }).lean();
+    const q = computeQtys(item.toObject(), issues);
+    res.json({ fault: fault.toObject(), item: { ...item.toObject(), ...q } });
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
-app.post('/api/faults/:faultId/maintenance', requireAdmin, (req, res) => {
+app.post('/api/faults/:faultId/maintenance', requireAdmin, async (req, res) => {
   try {
-    const db = readDB(); const fi = db.faults.findIndex(f => f.id === req.params.faultId);
-    if (fi === -1) return res.status(404).json({ error: 'Fault record not found.' });
-    const fault = db.faults[fi]; const idx = db.items.findIndex(i => i.id === fault.itemId);
-    if (idx !== -1) {
-      const mQty = Math.min(fault.qty, db.items[idx].faultyQty);
-      db.items[idx].faultyQty      -= mQty;
-      db.items[idx].maintenanceQty += mQty;
-      addLog(db, 'Maintenance', db.items[idx].name, req.session.name, `${mQty} unit(s) sent for repair`);
-    }
-    db.faults.splice(fi, 1); writeDB(db);
-    res.json({ item: idx !== -1 ? db.items[idx] : null });
+    const fault = await Fault.findOne({ id: req.params.faultId });
+    if (!fault) return res.status(404).json({ error: 'Fault not found.' });
+    const item = await Item.findOne({ id: fault.itemId });
+    if (!item) return res.status(404).json({ error: 'Item not found.' });
+    item.qtyFaulty      = Math.max(0, (item.qtyFaulty || 0) - fault.qty);
+    item.qtyMaintenance = (item.qtyMaintenance || 0) + fault.qty;
+    await item.save();
+    fault.status = 'maintenance';
+    await fault.save();
+    await addLog('Maintenance', item.name, req.session.name, `Qty: ${fault.qty} sent for repair`);
+    const issues = await Issue.find({ itemId: item.id, status: 'active' }).lean();
+    const q = computeQtys(item.toObject(), issues);
+    res.json({ fault: fault.toObject(), item: { ...item.toObject(), ...q } });
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
-app.post('/api/faults/:faultId/retire', requireAdmin, (req, res) => {
+app.post('/api/items/:id/fix-maintenance', requireAdmin, async (req, res) => {
   try {
-    const db = readDB(); const fi = db.faults.findIndex(f => f.id === req.params.faultId);
-    if (fi === -1) return res.status(404).json({ error: 'Fault not found.' });
-    const fault = db.faults[fi]; const idx = db.items.findIndex(i => i.id === fault.itemId);
-    if (idx !== -1) {
-      const rQty = Math.min(fault.qty, db.items[idx].faultyQty);
-      db.items[idx].faultyQty  -= rQty;
-      db.items[idx].retiredQty += rQty;
-      addLog(db, 'Retired', db.items[idx].name, req.session.name, `${rQty} unit(s) retired`);
-    }
-    db.faults.splice(fi, 1); writeDB(db);
-    res.json({ item: idx !== -1 ? db.items[idx] : null });
-  } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
-});
-
-// Maintenance back to available
-app.post('/api/items/:id/maintenance-done', requireAdmin, (req, res) => {
-  try {
-    const db = readDB(); const idx = db.items.findIndex(i => i.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Item not found.' });
-    const { qty } = req.body; const qtyNum = Math.max(1, parseInt(qty)||1);
-    if (db.items[idx].maintenanceQty < qtyNum) return res.status(400).json({ error: 'Not that many in maintenance.' });
-    db.items[idx].maintenanceQty -= qtyNum;
-    db.items[idx].availableQty   += qtyNum;
-    addLog(db, 'Maintenance Done', db.items[idx].name, req.session.name, `${qtyNum} unit(s) back to available`);
-    writeDB(db); res.json(db.items[idx]);
+    const { qty } = req.body;
+    const item = await Item.findOne({ id: req.params.id });
+    if (!item) return res.status(404).json({ error: 'Item not found.' });
+    const fixQty = Math.min(Math.max(1, parseInt(qty) || 1), item.qtyMaintenance || 0);
+    item.qtyMaintenance = Math.max(0, (item.qtyMaintenance || 0) - fixQty);
+    await item.save();
+    await addLog('Fixed (Maintenance)', item.name, req.session.name, `Qty: ${fixQty} returned to available`);
+    const issues = await Issue.find({ itemId: item.id, status: 'active' }).lean();
+    const q = computeQtys(item.toObject(), issues);
+    res.json({ ...item.toObject(), ...q });
   } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
 // ─── LOGS API ─────────────────────────────────────────────────────────────────
-app.get('/api/logs', requireAdmin, (req, res) => {
-  try { res.json(readDB().logs); } catch (e) { res.status(500).json({ error: 'Server error.' }); }
+app.get('/api/logs', requireAdmin, async (req, res) => {
+  try { res.json(await Log.find().sort({ time: -1 }).lean()); } catch (e) { res.status(500).json({ error: 'Server error.' }); }
 });
-app.delete('/api/logs', requireAdmin, (req, res) => {
-  try { const db = readDB(); db.logs = []; writeDB(db); res.json({ success: true }); }
-  catch (e) { res.status(500).json({ error: 'Server error.' }); }
+
+app.delete('/api/logs', requireAdmin, async (req, res) => {
+  try { await Log.deleteMany({}); res.json({ success: true }); } catch (e) { res.status(500).json({ error: 'Server error.' }); }
 });
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
@@ -525,11 +583,16 @@ app.use((req, res) => {
   res.redirect('/');
 });
 
-app.listen(PORT, () => {
-  console.log('\n╔══════════════════════════════════════════╗');
-  console.log(`║  LabStock v2  →  http://localhost:${PORT}    ║`);
-  console.log('║  Username : admin   Password : admin123  ║');
-  console.log('╚══════════════════════════════════════════╝\n');
-});
-SERVEREOF
-echo "server.js written: $(wc -l < /home/claude/labstock/server.js) lines"
+// ─── START (local dev only) ───────────────────────────────────────────────────
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log('\n╔══════════════════════════════════════════╗');
+    console.log(`║  LabStock  →  http://localhost:${PORT}        ║`);
+    console.log('║  Username : admin  │  Password : admin123 ║');
+    console.log('╚══════════════════════════════════════════╝\n');
+  });
+}
+
+// Required for Vercel serverless
+module.exports = app;
