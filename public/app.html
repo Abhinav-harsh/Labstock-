@@ -25,239 +25,278 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-he
 .app{display:flex;min-height:100vh}
 
 /* SIDEBAR */
-.sidebar{width:235px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform .3s}
-.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo-icon svg{width:19px;height:19px;fill:white}
-.logo-text{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform .3s;overflow:hidden}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-icon{width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-icon svg{width:20px;height:20px;fill:white}
+.logo-text{font-size:1.1rem;font-weight:700;color:var(--text);letter-spacing:-.02em;white-space:nowrap}
 .logo-text span{color:var(--accent)}
 .sidebar-nav{padding:10px 8px;flex:1;overflow-y:auto}
-.nav-label{font-size:.66rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:8px 10px 4px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.86rem;color:var(--text2);font-weight:500;transition:background .15s,color .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
-.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.nav-label{font-size:.67rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:8px 10px 3px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:.87rem;color:var(--text2);font-weight:500;transition:background .15s,color .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:'Sora',sans-serif}
+.nav-item svg{width:17px;height:17px;flex-shrink:0}
 .nav-item:hover{background:var(--surface2);color:var(--text)}
 .nav-item.active{background:var(--accent-light);color:var(--accent);font-weight:600}
-.nav-item .nbadge{margin-left:auto;background:var(--danger);color:white;font-size:.63rem;font-weight:700;padding:2px 6px;border-radius:99px;font-family:'DM Mono',monospace;min-width:18px;text-align:center}
-.sidebar-footer{padding:12px 8px;border-top:1px solid var(--border)}
-.user-chip{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--surface2);margin-bottom:6px}
-.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);color:white;font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.user-name{font-size:.8rem;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-role{font-size:.66rem;color:var(--text3)}
+.nav-item.danger:hover{background:var(--danger-light);color:var(--danger)}
+.nbadge{margin-left:auto;background:var(--danger);color:white;font-size:.63rem;font-weight:700;padding:1px 6px;border-radius:99px;font-family:'DM Mono',monospace;min-width:18px;text-align:center;line-height:1.6}
+.nbadge.orange{background:var(--orange)}
+.sidebar-footer{padding:10px 8px;border-top:1px solid var(--border);flex-shrink:0}
+.user-chip{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--radius-sm);background:var(--surface2);margin-bottom:6px}
+.user-av{width:30px;height:30px;border-radius:50%;background:var(--accent);color:white;font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.user-nm{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-rl{font-size:.68rem;color:var(--text3)}
 
 /* MAIN */
-.main{margin-left:235px;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:13px 26px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
-.burger{display:none;background:none;border:none;cursor:pointer;padding:4px}
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:13px 26px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;min-height:56px}
+.burger{display:none;background:none;border:none;cursor:pointer;padding:4px;flex-shrink:0}
 .burger svg{width:22px;height:22px;color:var(--text2)}
 .topbar-title{font-size:1.05rem;font-weight:700;color:var(--text);flex:1}
 .topbar-actions{display:flex;align-items:center;gap:8px}
-.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
-.btn svg{width:14px;height:14px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;line-height:1}
+.btn svg{width:15px;height:15px;flex-shrink:0}
 .btn-primary{background:var(--accent);color:white}
-.btn-primary:hover{background:#1d4ed8;transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.btn-primary:hover:not(:disabled){background:#1d4ed8;transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3)}
 .btn-outline{background:none;border:1px solid var(--border);color:var(--text2)}
-.btn-outline:hover{background:var(--surface2);color:var(--text)}
+.btn-outline:hover:not(:disabled){background:var(--surface2);color:var(--text)}
 .btn-danger{background:var(--danger);color:white}
-.btn-danger:hover{background:#dc2626}
+.btn-danger:hover:not(:disabled){background:#dc2626}
 .btn-success{background:var(--success);color:white}
-.btn-success:hover{background:#059669}
-.btn-sm{padding:5px 10px;font-size:.75rem}
+.btn-success:hover:not(:disabled){background:#059669}
+.btn-warning{background:var(--warning);color:white}
+.btn-warning:hover:not(:disabled){background:#d97706}
+.btn-sm{padding:6px 12px;font-size:.76rem}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important}
+
+/* CONTENT */
 .content{padding:22px 26px;flex:1}
 
-/* STATS GRID */
-.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:flex-start;gap:12px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px 16px;display:flex;align-items:flex-start;gap:11px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s}
 .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .stat-icon svg{width:19px;height:19px}
 .stat-icon.blue{background:var(--accent-light);color:var(--accent)}
 .stat-icon.green{background:var(--success-light);color:var(--success)}
+.stat-icon.indigo{background:var(--accent-light);color:#4f46e5}
 .stat-icon.red{background:var(--danger-light);color:var(--danger)}
-.stat-icon.orange{background:var(--warning-light);color:var(--warning)}
-.stat-icon.purple{background:var(--purple-light);color:var(--purple)}
-.stat-num{font-size:1.55rem;font-weight:700;line-height:1;font-family:'DM Mono',monospace}
-.stat-label{font-size:.76rem;color:var(--text3);margin-top:3px}
+.stat-icon.orange{background:var(--orange-light);color:var(--orange)}
+.stat-num{font-size:1.5rem;font-weight:700;line-height:1;font-family:'DM Mono',monospace;letter-spacing:-.02em}
+.stat-label{font-size:.74rem;color:var(--text3);margin-top:4px}
 
 /* TOOLBAR */
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:200px}
-.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text3);pointer-events:none}
-.search-input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.83rem;background:var(--surface);color:var(--text);transition:border-color .15s,box-shadow .15s;outline:none}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text3);pointer-events:none}
+.search-input{width:100%;padding:9px 12px 9px 36px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.84rem;background:var(--surface);color:var(--text);transition:border-color .15s,box-shadow .15s;outline:none}
 .search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
 .search-input::placeholder{color:var(--text3)}
-select.filter-sel{padding:9px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.83rem;background:var(--surface);color:var(--text2);outline:none;cursor:pointer;transition:border-color .15s}
+select.filter-sel{padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.84rem;background:var(--surface);color:var(--text2);outline:none;cursor:pointer;transition:border-color .15s;height:38px}
 select.filter-sel:focus{border-color:var(--accent)}
 
 /* TABLE */
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
 .table-header{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.table-title{font-size:.86rem;font-weight:600;color:var(--text)}
-.table-count{font-size:.76rem;color:var(--text3);font-family:'DM Mono',monospace;margin-left:6px}
-.table-scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:.82rem}
-thead th{padding:9px 14px;text-align:left;font-size:.7rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+.table-title{font-size:.88rem;font-weight:600;color:var(--text)}
+.table-count{font-size:.76rem;color:var(--text3);font-family:'DM Mono',monospace;margin-left:5px}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+thead th{padding:9px 14px;text-align:left;font-size:.71rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;transition:color .15s}
 thead th:hover{color:var(--text2)}
 thead th.sorted{color:var(--accent)}
-tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr{border-bottom:1px solid var(--border);transition:background .08s}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--surface2)}
 tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
 .td-mono{font-family:'DM Mono',monospace;font-size:.79rem}
 .td-muted{color:var(--text3);font-size:.79rem}
 
-/* STOCK BARS */
-.stock-bar{display:flex;gap:0;height:8px;border-radius:4px;overflow:hidden;width:100%;min-width:90px;background:var(--surface2)}
-.stock-seg{height:100%;transition:width .3s}
-.stock-seg.avail{background:var(--success)}
-.stock-seg.issued{background:var(--accent)}
-.stock-seg.faulty{background:var(--danger)}
-.stock-seg.maint{background:var(--warning)}
-.stock-seg.retired{background:var(--text3)}
-.stock-nums{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
-.sn{font-family:'DM Mono',monospace;font-size:.68rem;display:flex;align-items:center;gap:3px;white-space:nowrap}
-.sn::before{content:'';width:7px;height:7px;border-radius:2px;flex-shrink:0}
-.sn.avail::before{background:var(--success)}.sn.avail{color:#065f46}
-.sn.issued::before{background:var(--accent)}.sn.issued{color:#1e40af}
-.sn.faulty::before{background:var(--danger)}.sn.faulty{color:#991b1b}
-.sn.maint::before{background:var(--warning)}.sn.maint{color:#92400e}
-.sn.retired::before{background:var(--text3)}.sn.retired{color:var(--text3)}
-
 /* BADGES */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:99px;font-size:.7rem;font-weight:600;white-space:nowrap}
-.badge::before{content:'';width:5px;height:5px;border-radius:50%}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:.71rem;font-weight:600;white-space:nowrap}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .badge-available{background:var(--success-light);color:#065f46}.badge-available::before{background:var(--success)}
 .badge-issued{background:var(--accent-light);color:#1e40af}.badge-issued::before{background:var(--accent)}
 .badge-faulty{background:var(--danger-light);color:#991b1b}.badge-faulty::before{background:var(--danger)}
 .badge-maintenance{background:var(--warning-light);color:#92400e}.badge-maintenance::before{background:var(--warning)}
 .badge-retired{background:var(--surface2);color:var(--text3)}.badge-retired::before{background:var(--text3)}
-.badge-overdue{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}.badge-overdue::before{background:#ef4444}
-.cat-chip{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:500;background:var(--purple-light);color:var(--purple)}
+.badge-returned{background:var(--success-light);color:#065f46}.badge-returned::before{background:var(--success)}
+.badge-overdue{background:var(--danger-light);color:#991b1b}.badge-overdue::before{background:var(--danger)}
+.cat-chip{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.71rem;font-weight:500;background:var(--purple-light);color:var(--purple)}
+
+/* QTY BREAKDOWN pills */
+.qty-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.qty-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:6px;font-size:.7rem;font-weight:600;font-family:'DM Mono',monospace;white-space:nowrap}
+.qty-pill.avail{background:var(--success-light);color:#065f46}
+.qty-pill.issued{background:var(--accent-light);color:#1e40af}
+.qty-pill.faulty{background:var(--danger-light);color:#991b1b}
+.qty-pill.maint{background:var(--warning-light);color:#92400e}
+.qty-pill.total{background:var(--surface2);color:var(--text2)}
 
 /* ROW ACTIONS */
-.row-actions{display:flex;align-items:center;gap:3px;flex-wrap:nowrap}
-.icon-btn{width:28px;height:28px;border-radius:6px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .15s;flex-shrink:0}
-.icon-btn svg{width:13px;height:13px}
+.row-actions{display:flex;align-items:center;gap:4px}
+.icon-btn{width:29px;height:29px;border-radius:6px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .15s;flex-shrink:0}
+.icon-btn svg{width:14px;height:14px}
 .icon-btn:hover{background:var(--surface2);color:var(--text)}
 .icon-btn.del:hover{background:var(--danger-light);color:var(--danger)}
 .icon-btn.edit:hover{background:var(--accent-light);color:var(--accent)}
+.icon-btn.issue-btn:hover{background:var(--success-light);color:var(--success)}
+.icon-btn.ret-btn:hover{background:var(--accent-light);color:var(--accent)}
 
 /* PAGINATION */
-.pagination{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-top:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-top:1px solid var(--border);gap:10px;flex-wrap:wrap}
 .page-info{font-size:.77rem;color:var(--text3);font-family:'DM Mono',monospace}
-.page-btns{display:flex;gap:4px}
-.page-btn{width:30px;height:30px;border:1px solid var(--border);background:var(--surface);border-radius:6px;cursor:pointer;font-size:.79rem;font-family:'DM Mono',monospace;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:all .15s}
+.page-btns{display:flex;gap:4px;flex-wrap:wrap}
+.page-btn{min-width:30px;height:30px;border:1px solid var(--border);background:var(--surface);border-radius:6px;cursor:pointer;font-size:.8rem;font-family:'DM Mono',monospace;color:var(--text2);display:flex;align-items:center;justify-content:center;padding:0 6px;transition:all .15s}
 .page-btn:hover{border-color:var(--accent);color:var(--accent)}
 .page-btn.active{background:var(--accent);border-color:var(--accent);color:white}
 
-/* MODALS */
-.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.48);backdrop-filter:blur(5px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface);border-radius:16px;width:100%;max-width:540px;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(16px) scale(.98);transition:transform .2s;max-height:90vh;overflow-y:auto}
+.modal{background:var(--surface);border-radius:16px;width:100%;max-width:580px;box-shadow:0 24px 64px rgba(0,0,0,.22);transform:translateY(18px) scale(.97);transition:transform .22s;max-height:92vh;overflow-y:auto;display:flex;flex-direction:column}
 .modal-overlay.open .modal{transform:translateY(0) scale(1)}
-.modal-head{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.modal-title{font-size:.96rem;font-weight:700}
-.modal-close{width:30px;height:30px;border:none;background:var(--surface2);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.modal-close svg{width:14px;height:14px;color:var(--text2)}
-.modal-body{padding:18px 22px}
-.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.modal-head{padding:19px 22px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-size:.98rem;font-weight:700}
+.modal-close{width:32px;height:32px;border:none;background:var(--surface2);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
+.modal-close:hover{background:var(--border)}
+.modal-close svg{width:16px;height:16px;color:var(--text2)}
+.modal-body{padding:20px 22px;flex:1;overflow-y:auto}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;flex-shrink:0}
 
-/* FORMS */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-group.full{grid-column:1/-1}
-.form-group.third{grid-column:span 1}
-label{font-size:.76rem;font-weight:600;color:var(--text2)}
-.form-control{padding:9px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.83rem;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
+label{font-size:.77rem;font-weight:600;color:var(--text2);display:block}
+.form-control{padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.84rem;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
 .form-control:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
-.form-control.err{border-color:var(--danger)}
-textarea.form-control{resize:vertical;min-height:72px}
-.form-hint{font-size:.72rem;color:var(--text3);margin-top:2px}
+.form-control.err-field{border-color:var(--danger)}
+textarea.form-control{resize:vertical;min-height:76px;line-height:1.5}
 
-/* STOCK SPLIT INPUT (add item) */
-.stock-split{background:var(--surface2);border-radius:10px;padding:14px 16px;border:1px solid var(--border);grid-column:1/-1}
-.stock-split-title{font-size:.76rem;font-weight:600;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.stock-split-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.stock-split-grid .form-group label{font-size:.7rem}
+/* SECTION TITLE */
+.section-title{font-size:.82rem;font-weight:600;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
 /* DASHBOARD */
 .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
-.log-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow)}
-.section-title{font-size:.8rem;font-weight:600;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
-.log-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.log-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.log-row{display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--border)}
 .log-row:last-child{border-bottom:none}
-.log-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent-light);color:var(--accent);font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.log-av{width:34px;height:34px;border-radius:50%;background:var(--accent-light);color:var(--accent);font-weight:700;font-size:.8rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;text-transform:uppercase}
 .log-info{flex:1;min-width:0}
-.log-name{font-size:.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.log-meta{font-size:.72rem;color:var(--text3)}
+.log-name{font-size:.83rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log-meta{font-size:.73rem;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .log-due{font-size:.74rem;font-family:'DM Mono',monospace;text-align:right;flex-shrink:0}
 .log-due.overdue{color:var(--danger);font-weight:600}
 .log-due.ok{color:var(--success)}
 
 /* FAULTY GRID */
-.faulty-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-.faulty-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);transition:transform .15s}
+.faulty-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.faulty-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);transition:transform .15s}
 .faulty-card:hover{transform:translateY(-2px)}
-.faulty-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
-.faulty-card-name{font-weight:600;font-size:.88rem}
-.faulty-card-sn{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:2px}
-.faulty-card-desc{font-size:.79rem;color:var(--text2);margin-bottom:10px;line-height:1.5}
-.faulty-card-meta{display:flex;justify-content:space-between;align-items:center;font-size:.73rem;color:var(--text3)}
-.sev-badge{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:6px;text-transform:uppercase;letter-spacing:.04em}
-.sev-low{background:#d1fae5;color:#065f46}
-.sev-medium{background:var(--warning-light);color:#92400e}
-.sev-high{background:var(--danger-light);color:#991b1b}
-.sev-critical{background:#1c1917;color:#fef3c7}
+.faulty-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.faulty-card-name{font-weight:600;font-size:.9rem}
+.faulty-card-sn{font-family:'DM Mono',monospace;font-size:.74rem;color:var(--text3);margin-top:2px}
+.faulty-card-desc{font-size:.8rem;color:var(--text2);margin-bottom:10px;line-height:1.55}
+.faulty-card-qty{font-size:.78rem;margin-bottom:10px;display:flex;gap:6px;flex-wrap:wrap}
+.faulty-card-foot{display:flex;justify-content:space-between;align-items:center}
+
+/* INFO BANNER */
+.info-banner{display:flex;align-items:flex-start;gap:10px;background:var(--accent-light);color:#1e40af;border:1px solid #bfdbfe;border-radius:var(--radius-sm);padding:12px 14px;font-size:.8rem;line-height:1.55;margin-bottom:14px}
+.info-banner svg{width:18px;height:18px;flex-shrink:0;margin-top:1px}
+.info-banner.warning{background:var(--warning-light);color:#92400e;border-color:#fde68a}
+
+/* ADMIN ONLY */
+body.role-student .admin-only{display:none!important}
+
+/* COMPONENTS GRID */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:14px}
+.comp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);transition:box-shadow .15s,transform .15s;cursor:pointer}
+.comp-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.comp-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.comp-card-name{font-weight:700;font-size:.93rem;line-height:1.3}
+.comp-card-total{font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--success);line-height:1}
+.comp-card-total-label{font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.comp-stat-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.comp-stat{flex:1;min-width:58px;text-align:center;background:var(--surface2);border-radius:8px;padding:7px 4px}
+.comp-stat-num{font-family:'DM Mono',monospace;font-weight:700;font-size:.98rem}
+.comp-stat-lbl{font-size:.63rem;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.comp-stat.avail .comp-stat-num{color:var(--success)}
+.comp-stat.issued .comp-stat-num{color:var(--accent)}
+.comp-stat.faulty .comp-stat-num{color:var(--danger)}
+.comp-stat.maint .comp-stat-num{color:var(--warning)}
+.comp-shelves{margin-top:10px;font-size:.74rem;color:var(--text3);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.comp-shelf-chip{background:var(--purple-light);color:var(--purple);padding:1px 7px;border-radius:6px;font-size:.7rem;font-weight:600}
+.comp-expand-icon{color:var(--text3);transition:transform .2s;flex-shrink:0}
+.comp-card.open .comp-expand-icon{transform:rotate(180deg)}
+.comp-detail{display:none;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.comp-card.open .comp-detail{display:block}
+.comp-detail-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:.78rem;border-bottom:1px solid var(--surface2)}
+.comp-detail-row:last-child{border-bottom:none}
+.comp-detail-left{display:flex;flex-direction:column;gap:2px}
+.comp-detail-serial{font-family:'DM Mono',monospace;font-weight:600;font-size:.78rem}
+.comp-detail-meta{font-size:.71rem;color:var(--text3)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:44px 24px;color:var(--text3)}
+.empty-state svg{width:46px;height:46px;margin:0 auto 12px;display:block;opacity:.32}
+.empty-state p{font-size:.87rem}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* SETTINGS */
+.settings-wrap{max-width:480px}
+.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-bottom:16px}
+.settings-card-title{font-size:.9rem;font-weight:700;margin-bottom:16px;color:var(--text)}
 
 /* NOTIFICATIONS */
-.notif-bar{position:fixed;bottom:18px;right:18px;z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.notif{background:var(--text);color:white;padding:11px 15px;border-radius:10px;font-size:.81rem;box-shadow:var(--shadow-md);max-width:300px;display:flex;align-items:center;gap:9px;pointer-events:all;animation:slideIn .3s ease;font-weight:500}
+.notif-bar{position:fixed;bottom:20px;right:20px;z-index:400;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:320px}
+.notif{background:var(--text);color:white;padding:12px 15px;border-radius:10px;font-size:.82rem;box-shadow:var(--shadow-md);display:flex;align-items:center;gap:10px;pointer-events:all;animation:slideIn .28s ease;font-weight:500;line-height:1.4;word-break:break-word}
 .notif.success{background:var(--success)}
 .notif.error{background:var(--danger)}
 .notif.warning{background:var(--warning);color:#1c1917}
 @keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes slideOut{to{transform:translateX(110%);opacity:0}}
+.notif-x{background:none;border:none;color:inherit;cursor:pointer;margin-left:auto;font-size:1.1rem;line-height:1;padding:0 2px;opacity:.75;flex-shrink:0}
+.notif-x:hover{opacity:1}
 
 /* LOADING */
-.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.8);backdrop-filter:blur(2px);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px}
-.loading-overlay.show{display:flex}
-.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+.page-loading{position:fixed;inset:0;background:rgba(255,255,255,.9);backdrop-filter:blur(3px);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.page-loading.hidden{display:none}
+.big-spin{width:38px;height:38px;border:3.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .75s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* VIEWS */
-.view{display:none}.view.active{display:block}
-
-/* EMPTY STATE */
-.empty-state{text-align:center;padding:40px 20px;color:var(--text3)}
-.empty-state svg{width:44px;height:44px;margin-bottom:10px;opacity:.3}
-.empty-state p{font-size:.86rem;margin-top:4px}
-
-/* SETTINGS */
-.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);max-width:480px}
-.settings-title{font-size:.92rem;font-weight:700;margin-bottom:16px;color:var(--text)}
-
-/* SIDEBAR OVERLAY (mobile) */
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
-.sidebar-overlay.show{display:block}
-
-mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 2px}
-
-/* LEGEND */
-.stock-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.72rem;margin-bottom:10px}
-.legend-item{display:flex;align-items:center;gap:5px;color:var(--text2)}
-.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.spin-txt{font-size:.84rem;color:var(--text3);font-weight:500}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:99}
+.sb-overlay.show{display:block}
+mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
 
 /* RESPONSIVE */
 @media(max-width:1100px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}.dash-grid{grid-template-columns:1fr}}
-@media(max-width:700px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.burger{display:flex}.content{padding:14px}.topbar{padding:11px 14px}.form-grid{grid-template-columns:1fr}.stock-split-grid{grid-template-columns:repeat(2,1fr)}.stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
-@media(max-width:420px){.stats-grid{grid-template-columns:1fr 1fr}.stat-num{font-size:1.25rem}}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+@media(max-width:700px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}.burger{display:flex}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .content{padding:14px 14px}.topbar{padding:11px 14px}
+  .form-grid{grid-template-columns:1fr}.toolbar{gap:8px}
+}
+@media(max-width:420px){.stats-grid{grid-template-columns:1fr 1fr}.stat-num{font-size:1.3rem}.topbar-actions .btn-txt{display:none}}
 </style>
 </head>
 <body>
-<div class="app">
 
+<div class="page-loading" id="pageLoading">
+  <div class="big-spin"></div>
+  <span class="spin-txt">Loading LabStock…</span>
+</div>
+
+<div class="app">
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
@@ -266,55 +305,63 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 2px}
   </div>
   <nav class="sidebar-nav">
     <div class="nav-label">Main</div>
-    <button class="nav-item active" onclick="showView('dashboard',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
+    <button class="nav-item active" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
     </button>
-    <button class="nav-item" onclick="showView('inventory',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Stock Inventory
+    <button class="nav-item" data-view="components">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+      Components
     </button>
-    <button class="nav-item" onclick="showView('issued',this)">
+    <button class="nav-item" data-view="inventory">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Inventory
+    </button>
+    <div class="nav-label" style="margin-top:8px">Stock Tracking</div>
+    <button class="nav-item" data-view="issued">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Issued Items <span class="nbadge" id="issued-badge">0</span>
+      Issued Items <span class="nbadge" id="badge-issued">0</span>
     </button>
-    <button class="nav-item" onclick="showView('faulty',this)">
+    <button class="nav-item" data-view="faulty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Faulty Items <span class="nbadge" id="faulty-badge">0</span>
+      Faulty / Repair <span class="nbadge orange" id="badge-faulty">0</span>
     </button>
-    <div class="nav-label" style="margin-top:8px">Management</div>
-    <button class="nav-item" onclick="showView('categories',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>Categories
+    <div class="nav-label admin-only" style="margin-top:8px">Management</div>
+    <button class="nav-item admin-only" data-view="categories">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+      Categories
     </button>
-    <button class="nav-item" onclick="showView('logs',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Activity Log
-    </button>
-    <button class="nav-item" onclick="showView('settings',this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
+    <button class="nav-item" data-view="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
     </button>
   </nav>
   <div class="sidebar-footer">
     <div class="user-chip">
-      <div class="user-avatar" id="sidebarAvatar">A</div>
-      <div><div class="user-name" id="sidebarName">Admin</div><div class="user-role" id="sidebarRole">Administrator</div></div>
+      <div class="user-av" id="userAv">A</div>
+      <div><div class="user-nm" id="userName">Admin</div><div class="user-rl" id="userRole">—</div></div>
     </div>
-    <button class="nav-item" onclick="exportCSV()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV
+    <button class="nav-item" id="exportBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export CSV
     </button>
-    <button class="nav-item" onclick="doLogout()" style="color:var(--danger)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout
+    <button class="nav-item danger" id="logoutBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
     </button>
   </div>
 </aside>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="sb-overlay" id="sbOverlay"></div>
 
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
-    <button class="burger" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    <span class="topbar-title" id="topbar-title">Dashboard</span>
+    <button class="burger" id="burgerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <span class="topbar-title" id="topbarTitle">Dashboard</span>
     <div class="topbar-actions">
-      <button class="btn btn-primary btn-sm" onclick="openAddItemModal()">
+      <button class="btn btn-primary btn-sm admin-only" id="topAddBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span>Add Item</span>
+        <span class="btn-txt">New Item</span>
       </button>
     </div>
   </div>
@@ -324,111 +371,149 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 2px}
     <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><div><div class="stat-num" id="stat-total">—</div><div class="stat-label">Total Units</div></div></div>
-        <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="stat-num" id="stat-available">—</div><div class="stat-label">Available</div></div></div>
-        <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="stat-num" id="stat-issued">—</div><div class="stat-label">Issued Out</div></div></div>
-        <div class="stat-card"><div class="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div><div><div class="stat-num" id="stat-faulty">—</div><div class="stat-label">Faulty Units</div></div></div>
-        <div class="stat-card"><div class="stat-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div><div><div class="stat-num" id="stat-maint">—</div><div class="stat-label">In Maintenance</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><div><div class="stat-num" id="st-total">—</div><div class="stat-label">Total Units</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="stat-num" id="st-avail">—</div><div class="stat-label">Available Now</div></div></div>
+        <div class="stat-card"><div class="stat-icon indigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="stat-num" id="st-issued">—</div><div class="stat-label">Currently Issued</div></div></div>
+        <div class="stat-card"><div class="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div><div><div class="stat-num" id="st-faulty">—</div><div class="stat-label">Faulty Units</div></div></div>
+        <div class="stat-card"><div class="stat-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div><div><div class="stat-num" id="st-maint">—</div><div class="stat-label">In Maintenance</div></div></div>
       </div>
       <div class="dash-grid">
-        <div class="log-card"><div class="section-title">Active Issued Records</div><div id="recent-issued-list"></div></div>
-        <div class="log-card"><div class="section-title">Faulty Items</div><div id="recent-faulty-list"></div></div>
+        <div class="log-card"><div class="section-title">Recently Issued</div><div id="dash-issued"></div></div>
+        <div class="log-card"><div class="section-title">Faulty / In Repair</div><div id="dash-faulty"></div></div>
       </div>
     </div>
 
-    <!-- INVENTORY (Stock view) -->
-    <div class="view" id="view-inventory">
-      <div class="stock-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--success)"></div> Available</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Issued</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--danger)"></div> Faulty</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--warning)"></div> Maintenance</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--text3)"></div> Retired</div>
-      </div>
+    <!-- COMPONENTS -->
+    <div class="view" id="view-components">
       <div class="toolbar">
-        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="inv-search" placeholder="Search name, serial, category…" oninput="renderInventory()"></div>
-        <select class="filter-sel" id="inv-filter-cat" onchange="renderInventory()"><option value="">All Categories</option></select>
-        <button class="btn btn-primary" onclick="openAddItemModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item</button>
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="comp-q" placeholder="Search components…"></div>
+        <select class="filter-sel" id="comp-cat"><option value="">All Categories</option></select>
+      </div>
+      <div class="comp-grid" id="comp-grid"></div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div class="view" id="view-inventory">
+      <div class="toolbar">
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="inv-q" placeholder="Search name, serial, category…"></div>
+        <select class="filter-sel" id="inv-cat"><option value="">All Categories</option></select>
+        <button class="btn btn-primary admin-only" id="invAddBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item</button>
+      </div>
+      <div class="info-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Each row shows the <strong>real-time stock breakdown</strong>: Available = Total − Issued − Faulty − Maintenance. Issue a batch to a student without changing the total count.</span>
       </div>
       <div class="table-wrap">
-        <div class="table-header"><span class="table-title">Stock Inventory <span class="table-count" id="inv-count"></span></span></div>
-        <div class="table-scroll">
-          <table>
-            <thead><tr>
-              <th onclick="sortBy('serial')">Serial <span id="sort-serial"></span></th>
-              <th onclick="sortBy('name')">Item Name <span id="sort-name"></span></th>
-              <th onclick="sortBy('catId')">Category <span id="sort-catId"></span></th>
-              <th onclick="sortBy('totalQty')">Total <span id="sort-totalQty"></span></th>
-              <th>Stock Breakdown</th>
-              <th>Location</th>
-              <th>Actions</th>
-            </tr></thead>
-            <tbody id="inv-tbody"></tbody>
-          </table>
-        </div>
-        <div class="pagination" id="inv-pagination"></div>
+        <div class="table-header"><span class="table-title">Inventory Items<span class="table-count" id="inv-count"></span></span></div>
+        <div class="table-scroll"><table>
+          <thead><tr>
+            <th data-col="serial">Serial ↕</th>
+            <th data-col="name">Item Name ↕</th>
+            <th data-col="catId">Category ↕</th>
+            <th>Stock Breakdown</th>
+            <th data-col="location">Shelf ↕</th>
+            <th class="admin-only">Actions</th>
+          </tr></thead>
+          <tbody id="inv-tbody"></tbody>
+        </table></div>
+        <div class="pagination" id="inv-pg"></div>
       </div>
     </div>
 
-    <!-- ISSUED -->
+    <!-- ISSUED ITEMS -->
     <div class="view" id="view-issued">
       <div class="toolbar">
-        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="issued-search" placeholder="Search student, ID, item…" oninput="renderIssued()"></div>
-        <select class="filter-sel" id="issued-filter" onchange="renderIssued()"><option value="">All Active</option><option value="overdue">Overdue Only</option><option value="returned">Returned</option></select>
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="iss-q" placeholder="Search student name, ID, item…"></div>
+        <select class="filter-sel" id="iss-st"><option value="active">Active Issues</option><option value="">All (incl. returned)</option><option value="overdue">Overdue</option></select>
+        <select class="filter-sel" id="iss-cat"><option value="">All Categories</option></select>
       </div>
       <div class="table-wrap">
-        <div class="table-header"><span class="table-title">Issued Records <span class="table-count" id="issued-count"></span></span></div>
-        <div class="table-scroll">
-          <table>
-            <thead><tr><th>#</th><th>Item</th><th>Qty</th><th>Issued To</th><th>Student ID</th><th>Issued By</th><th>Issue Date</th><th>Return By</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="issued-tbody"></tbody>
-          </table>
-        </div>
-        <div class="pagination" id="issued-pagination"></div>
+        <div class="table-header"><span class="table-title">Issue Records<span class="table-count" id="iss-count"></span></span></div>
+        <div class="table-scroll"><table>
+          <thead><tr>
+            <th>#</th>
+            <th>Item Name</th>
+            <th>Serial</th>
+            <th>Category</th>
+            <th data-col-iss="qty">Qty Issued ↕</th>
+            <th>Issued To</th>
+            <th>Student ID</th>
+            <th data-col-iss="issueDate">Issue Date ↕</th>
+            <th data-col-iss="returnDate">Return By ↕</th>
+            <th>Status</th>
+            <th class="admin-only">Actions</th>
+          </tr></thead>
+          <tbody id="iss-tbody"></tbody>
+        </table></div>
+        <div class="pagination" id="iss-pg"></div>
       </div>
     </div>
 
-    <!-- FAULTY -->
+    <!-- FAULTY / MAINTENANCE -->
     <div class="view" id="view-faulty">
       <div class="toolbar">
-        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="faulty-search" placeholder="Search faulty items…" oninput="renderFaulty()"></div>
-        <button class="btn btn-primary" onclick="openModal('faultModal')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Report Fault
-        </button>
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="flt-q" placeholder="Search items with faults…"></div>
+        <select class="filter-sel" id="flt-sev-filter"><option value="">All Severity</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+        <button class="btn btn-danger admin-only" id="rptFaultBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Report Fault</button>
       </div>
-      <div class="faulty-grid" id="faulty-grid"></div>
+      <div class="info-banner warning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Faulty units are <strong>removed from available stock</strong> but the total count stays the same. Fixing a fault returns units back to Available. Sending to maintenance moves them out of Faulty into Maintenance.</span>
+      </div>
+      <div class="faulty-grid" id="flt-grid"></div>
     </div>
 
     <!-- CATEGORIES -->
     <div class="view" id="view-categories">
+      <div class="info-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Categories organise inventory items. You cannot delete a category that still has items — reassign or remove those items first.</span>
+      </div>
       <div class="toolbar">
-        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="cat-search" placeholder="Search categories…" oninput="renderCategories()"></div>
-        <button class="btn btn-primary" onclick="openAddCatModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Category</button>
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="cat-q" placeholder="Search categories…"></div>
+        <button class="btn btn-primary" id="addCatBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Category</button>
       </div>
       <div class="table-wrap">
-        <div class="table-scroll"><table><thead><tr><th>#</th><th>Category</th><th>Description</th><th>Items</th><th>Total Units</th><th>Actions</th></tr></thead><tbody id="cat-tbody"></tbody></table></div>
-      </div>
-    </div>
-
-    <!-- LOGS -->
-    <div class="view" id="view-logs">
-      <div class="toolbar">
-        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="log-search" placeholder="Filter logs…" oninput="renderLogs()"></div>
-        <button class="btn btn-outline btn-sm" onclick="clearLogs()">Clear Logs</button>
-      </div>
-      <div class="table-wrap">
-        <div class="table-scroll"><table><thead><tr><th>#</th><th>Time</th><th>Action</th><th>Item</th><th>User</th><th>Details</th></tr></thead><tbody id="log-tbody"></tbody></table></div>
+        <div class="table-scroll"><table>
+          <thead><tr><th>#</th><th>Category Name</th><th>Description</th><th>Items</th><th>Actions</th></tr></thead>
+          <tbody id="cat-tbody"></tbody>
+        </table></div>
       </div>
     </div>
 
     <!-- SETTINGS -->
     <div class="view" id="view-settings">
-      <div class="settings-card">
-        <div class="settings-title">Change Password</div>
-        <div class="form-group" style="margin-bottom:13px"><label>Current Password</label><input class="form-control" type="password" id="pwd-current" placeholder="Current password" autocomplete="current-password"></div>
-        <div class="form-group" style="margin-bottom:13px"><label>New Password</label><input class="form-control" type="password" id="pwd-new" placeholder="Min 6 characters" autocomplete="new-password"></div>
-        <div class="form-group" style="margin-bottom:18px"><label>Confirm New Password</label><input class="form-control" type="password" id="pwd-confirm" placeholder="Repeat new password" autocomplete="new-password"></div>
-        <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+      <div class="settings-wrap">
+        <!-- ▼ Change Password: admin-only — students cannot see or use this -->
+        <div class="settings-card admin-only">
+          <div class="settings-card-title">Change Password</div>
+          <div class="form-group" style="margin-bottom:13px"><label>Current Password</label><input class="form-control" type="password" id="pwd-cur" placeholder="Current password" autocomplete="current-password"></div>
+          <div class="form-group" style="margin-bottom:13px"><label>New Password</label><input class="form-control" type="password" id="pwd-new" placeholder="Min 6 characters" autocomplete="new-password"></div>
+          <div class="form-group" style="margin-bottom:18px"><label>Confirm New Password</label><input class="form-control" type="password" id="pwd-cfm" placeholder="Repeat new password" autocomplete="new-password"></div>
+          <button class="btn btn-primary" id="changePwdBtn">Update Password</button>
+        </div>
+        <div class="settings-card admin-only">
+          <div class="settings-card-title">About</div>
+          <p style="font-size:.83rem;color:var(--text2);line-height:1.7">LabStock v2.0 — Real-time qty-split Lab Inventory.<br>Data stored in MongoDB Atlas.</p>
+        </div>
+        <!-- Student-only info card -->
+        <div class="settings-card" id="student-settings-info" style="display:none">
+          <div class="settings-card-title">Account Info</div>
+          <p style="font-size:.83rem;color:var(--text2);line-height:1.7">You are logged in as a <strong>Student</strong> with view-only access.<br>Contact the lab administrator to make any changes.</p>
+        </div>
+      </div>
+      <div class="admin-only" style="margin-top:18px">
+        <div class="toolbar">
+          <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="search-input" id="log-q" placeholder="Filter activity logs…"></div>
+          <button class="btn btn-outline btn-sm" id="clearLogsBtn">Clear Logs</button>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header"><span class="table-title">Activity Log<span class="table-count" id="log-count"></span></span></div>
+          <div class="table-scroll"><table>
+            <thead><tr><th>#</th><th>Time</th><th>Action</th><th>Item</th><th>User</th><th>Details</th></tr></thead>
+            <tbody id="log-tbody"></tbody>
+          </table></div>
+        </div>
       </div>
     </div>
 
@@ -436,765 +521,983 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 2px}
 </div><!-- /main -->
 </div><!-- /app -->
 
-<!-- ═══ ADD/EDIT ITEM MODAL ═══════════════════════════════════════════════════ -->
+<!-- ADD / EDIT ITEM MODAL -->
 <div class="modal-overlay" id="itemModal">
   <div class="modal">
-    <div class="modal-head"><span class="modal-title" id="itemModalTitle">Add New Item</span><button class="modal-close" onclick="closeModal('itemModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-head">
+      <span class="modal-title" id="itemModalTitle">Add New Item</span>
+      <button class="modal-close" data-close="itemModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-group"><label>Item Name *</label><input class="form-control" id="f-name" placeholder="e.g. Arduino Uno R3"></div>
-        <div class="form-group"><label>Serial / Code *</label><input class="form-control" id="f-serial" placeholder="e.g. ARD-001"></div>
-        <div class="form-group"><label>Category *</label><select class="form-control" id="f-category"></select></div>
-        <div class="form-group"><label>Location / Shelf</label><input class="form-control" id="f-location" placeholder="e.g. Shelf A-1"></div>
-        <div class="form-group full"><label>Notes</label><textarea class="form-control" id="f-notes" placeholder="Additional notes…"></textarea></div>
-        <!-- STOCK SPLIT -->
-        <div class="stock-split">
-          <div class="stock-split-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-            Stock Quantities — Total = Available + Faulty + Maintenance + Retired
-          </div>
-          <div class="stock-split-grid">
-            <div class="form-group"><label>Total Qty *</label><input class="form-control" id="f-total" type="number" min="1" value="1" oninput="autoAvailable()"></div>
-            <div class="form-group"><label>Available</label><input class="form-control" id="f-available" type="number" min="0" value="1"></div>
-            <div class="form-group"><label>Faulty</label><input class="form-control" id="f-faulty" type="number" min="0" value="0" oninput="autoAvailable()"></div>
-            <div class="form-group"><label>Maintenance</label><input class="form-control" id="f-maint" type="number" min="0" value="0" oninput="autoAvailable()"></div>
-          </div>
-          <p class="form-hint" id="f-stock-hint" style="margin-top:8px"></p>
+        <div class="form-group"><label>Item Name *</label><input class="form-control" id="f-name" placeholder="e.g. Arduino Uno"></div>
+        <div class="form-group"><label>Serial Number *</label><input class="form-control" id="f-serial" placeholder="e.g. ARD-001"></div>
+        <div class="form-group"><label>Category *</label><select class="form-control" id="f-cat"></select></div>
+        <div class="form-group"><label>Total Quantity</label><input class="form-control" id="f-qty" type="number" min="1" value="1"></div>
+        <div class="form-group"><label>Shelf / Location</label><input class="form-control" id="f-loc" placeholder="e.g. Shelf A-3"></div>
+        <div class="form-group full"><label>Notes / Description</label><textarea class="form-control" id="f-notes" placeholder="Any additional notes…"></textarea></div>
+      </div>
+      <input type="hidden" id="f-id">
+      <div id="f-qty-adj" style="display:none;margin-top:16px">
+        <div class="section-title">Adjust Non-Available Quantities</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Faulty Units</label><input class="form-control" id="f-qfaulty" type="number" min="0" value="0"></div>
+          <div class="form-group"><label>Maintenance Units</label><input class="form-control" id="f-qmaint" type="number" min="0" value="0"></div>
+          <div class="form-group"><label>Retired Units</label><input class="form-control" id="f-qretired" type="number" min="0" value="0"></div>
+          <div class="form-group" style="align-self:center;padding-top:18px"><span id="f-qty-preview" style="font-size:.82rem;color:var(--text2)"></span></div>
         </div>
       </div>
-      <input type="hidden" id="f-edit-id">
     </div>
     <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('itemModal')">Cancel</button>
-      <button class="btn btn-primary" id="itemSaveBtn" onclick="saveItem()">Save Item</button>
+      <button class="btn btn-outline" data-close="itemModal">Cancel</button>
+      <button class="btn btn-primary" id="saveItemBtn">Save Item</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ ISSUE MODAL ═══════════════════════════════════════════════════════════ -->
+<!-- ISSUE MODAL -->
 <div class="modal-overlay" id="issueModal">
-  <div class="modal">
-    <div class="modal-head"><span class="modal-title">Issue Item to Student</span><button class="modal-close" onclick="closeModal('issueModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head">
+      <span class="modal-title">Issue Items to Student</span>
+      <button class="modal-close" data-close="issueModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
     <div class="modal-body">
-      <div style="background:var(--accent-light);border-radius:9px;padding:10px 14px;margin-bottom:14px;font-size:.83rem;color:#1e40af">
-        <strong id="issue-item-name">—</strong><br>
-        <span id="issue-avail-info" style="font-size:.78rem;opacity:.8"></span>
+      <div id="iss-stock-info" style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;font-size:.83rem">
+        <div style="font-weight:700;margin-bottom:6px" id="iss-item-name">—</div>
+        <div class="qty-row" id="iss-item-stock"></div>
       </div>
       <div class="form-grid">
-        <div class="form-group"><label>Student Name *</label><input class="form-control" id="i-student-name" placeholder="Full name"></div>
-        <div class="form-group"><label>Student ID / Roll No. *</label><input class="form-control" id="i-student-id" placeholder="e.g. 22CS045"></div>
-        <div class="form-group"><label>Quantity to Issue *</label><input class="form-control" id="i-qty" type="number" min="1" value="1"></div>
-        <div class="form-group"><label>Issue Date *</label><input class="form-control" id="i-issue-date" type="date"></div>
-        <div class="form-group"><label>Return By Date</label><input class="form-control" id="i-return-date" type="date"></div>
-        <div class="form-group full"><label>Purpose / Notes</label><textarea class="form-control" id="i-notes" placeholder="Purpose of issuing…"></textarea></div>
+        <div class="form-group"><label>Qty to Issue *</label><input class="form-control" id="iss-qty" type="number" min="1" value="1"></div>
+        <div class="form-group"><label>Student Name *</label><input class="form-control" id="iss-name" placeholder="Full name"></div>
+        <div class="form-group"><label>Student ID / Roll No. *</label><input class="form-control" id="iss-sid" placeholder="e.g. 22CS045"></div>
+        <div class="form-group"><label>Issue Date *</label><input class="form-control" id="iss-idate" type="date"></div>
+        <div class="form-group"><label>Return By (optional)</label><input class="form-control" id="iss-rdate" type="date"></div>
+        <div class="form-group full"><label>Purpose / Notes</label><textarea class="form-control" id="iss-notes" placeholder="Purpose of issuing…"></textarea></div>
       </div>
-      <input type="hidden" id="i-item-id">
+      <input type="hidden" id="iss-id">
     </div>
     <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('issueModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmIssue()">Issue Item</button>
+      <button class="btn btn-outline" data-close="issueModal">Cancel</button>
+      <button class="btn btn-primary" id="confirmIssueBtn">Issue Items</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ FAULT MODAL ═══════════════════════════════════════════════════════════ -->
+<!-- FAULT MODAL -->
 <div class="modal-overlay" id="faultModal">
-  <div class="modal">
-    <div class="modal-head"><span class="modal-title">Report Faulty Units</span><button class="modal-close" onclick="closeModal('faultModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head">
+      <span class="modal-title">Report Faulty Items</span>
+      <button class="modal-close" data-close="faultModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="form-group full"><label>Select Item *</label><select class="form-control" id="fault-item-sel" onchange="updateFaultAvail()"></select><p class="form-hint" id="fault-avail-info"></p></div>
-        <div class="form-group"><label>Number of Faulty Units *</label><input class="form-control" id="fault-qty" type="number" min="1" value="1"></div>
-        <div class="form-group"><label>Severity</label><select class="form-control" id="fault-severity"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>
-        <div class="form-group full"><label>Fault Description *</label><textarea class="form-control" id="fault-desc" placeholder="Describe the fault…"></textarea></div>
-        <div class="form-group"><label>Reported By</label><input class="form-control" id="fault-reported-by" placeholder="Name"></div>
-        <div class="form-group"><label>Date</label><input class="form-control" id="fault-date" type="date"></div>
+        <div class="form-group full"><label>Select Item *</label><select class="form-control" id="flt-item"></select></div>
+        <div class="form-group"><label>Faulty Qty *</label><input class="form-control" id="flt-qty" type="number" min="1" value="1"></div>
+        <div class="form-group"><label>Severity</label><select class="form-control" id="flt-sev"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>
+        <div class="form-group full"><label>Fault Description *</label><textarea class="form-control" id="flt-desc" placeholder="Describe the fault in detail…"></textarea></div>
+        <div class="form-group"><label>Reported By</label><input class="form-control" id="flt-by" placeholder="Name"></div>
+        <div class="form-group"><label>Date Reported</label><input class="form-control" id="flt-date" type="date"></div>
       </div>
+      <div id="flt-avail-info" style="margin-top:10px;font-size:.8rem;color:var(--text2)"></div>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('faultModal')">Cancel</button>
-      <button class="btn btn-danger" onclick="saveFault()">Report Fault</button>
+      <button class="btn btn-outline" data-close="faultModal">Cancel</button>
+      <button class="btn btn-danger" id="saveFaultBtn">Report Fault</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ CATEGORY MODAL ════════════════════════════════════════════════════════ -->
+<!-- CATEGORY MODAL -->
 <div class="modal-overlay" id="catModal">
-  <div class="modal" style="max-width:400px">
-    <div class="modal-head"><span class="modal-title" id="catModalTitle">Add Category</span><button class="modal-close" onclick="closeModal('catModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="modal" style="max-width:430px">
+    <div class="modal-head">
+      <span class="modal-title" id="catModalTitle">Add Category</span>
+      <button class="modal-close" data-close="catModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
     <div class="modal-body">
-      <div class="form-group" style="margin-bottom:12px"><label>Category Name *</label><input class="form-control" id="cat-name" placeholder="e.g. Microcontrollers"></div>
+      <div class="form-group" style="margin-bottom:13px"><label>Category Name *</label><input class="form-control" id="cat-name" placeholder="e.g. Microcontrollers"></div>
       <div class="form-group"><label>Description</label><textarea class="form-control" id="cat-desc" placeholder="Brief description…"></textarea></div>
-      <input type="hidden" id="cat-edit-id">
+      <input type="hidden" id="cat-id">
     </div>
     <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('catModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveCategory()">Save</button>
+      <button class="btn btn-outline" data-close="catModal">Cancel</button>
+      <button class="btn btn-primary" id="saveCatBtn">Save Category</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ DELETE CONFIRM ════════════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="deleteModal">
-  <div class="modal" style="max-width:380px">
-    <div class="modal-head"><span class="modal-title">Confirm Delete</span><button class="modal-close" onclick="closeModal('deleteModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-    <div class="modal-body"><p style="font-size:.88rem;color:var(--text2)">Delete <strong id="delete-name"></strong>? This cannot be undone.</p></div>
+<!-- DELETE CONFIRM -->
+<div class="modal-overlay" id="delModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head">
+      <span class="modal-title">Confirm Delete</span>
+      <button class="modal-close" data-close="delModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body"><p style="font-size:.9rem;color:var(--text2)">Are you sure you want to delete <strong id="del-name"></strong>? This cannot be undone.</p></div>
     <div class="modal-foot">
-      <button class="btn btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
-      <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+      <button class="btn btn-outline" data-close="delModal">Cancel</button>
+      <button class="btn btn-danger" id="confirmDelBtn">Delete</button>
     </div>
   </div>
 </div>
 
-<div class="notif-bar" id="notif-bar"></div>
-<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><span style="font-size:.82rem;color:var(--text2)">Loading…</span></div>
+<div class="notif-bar" id="notifBar"></div>
 
 <script>
 'use strict';
-// ─── STATE ────────────────────────────────────────────────────────────────────
-let items=[], categories=[], issues=[], faults=[], logs=[];
-let sortCol='serial', sortDir=1;
-let invPage=1, issuedPage=1;
-const PAGE=15;
-let pendingDelete=null, pendingDeleteType=null;
 
-// ─── API ──────────────────────────────────────────────────────────────────────
+var S = {
+  items: [], categories: [], faults: [], logs: [], components: [], issues: [],
+  sortCol: 'serial', sortDir: 1,
+  issSortCol: 'issueDate', issSortDir: -1,
+  invPage: 1, issPage: 1,
+  pendingDel: null, pendingDelType: null,
+  role: 'student'
+};
+var PAGE = 15;
+
+// ── API ────────────────────────────────────────────────────────────────────────
 async function api(method, url, body) {
-  const opts = { method, credentials:'same-origin', headers:{'Content-Type':'application/json'} };
+  var opts = { method:method, credentials:'same-origin', headers:{'Content-Type':'application/json'} };
   if (body !== undefined) opts.body = JSON.stringify(body);
-  const res = await fetch(url, opts);
-  if (res.status === 401) { window.location.href='/login'; return null; }
-  const data = await res.json();
+  var res  = await fetch(url, opts);
+  if (res.status === 401) { window.location.href = '/login'; return null; }
+  var data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Request failed');
   return data;
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-async function init() {
-  showLoading(true);
-  try {
-    const sess = await api('GET','/api/session');
-    if (!sess || !sess.loggedIn) { window.location.href='/login'; return; }
-    document.getElementById('sidebarName').textContent = sess.name;
-    document.getElementById('sidebarRole').textContent = sess.role === 'admin' ? 'Administrator' : 'Student (View Only)';
-    document.getElementById('sidebarAvatar').textContent = sess.name.charAt(0).toUpperCase();
-    await loadAll();
-    renderDashboard();
-    updateCategoryFilter();
-  } catch(e) { notify('Failed to load: '+e.message,'error'); }
-  finally { showLoading(false); }
-}
-
+// ── LOAD ALL ───────────────────────────────────────────────────────────────────
 async function loadAll() {
-  [items, categories, issues, faults, logs] = await Promise.all([
-    api('GET','/api/items'), api('GET','/api/categories'),
-    api('GET','/api/issues'), api('GET','/api/faults'), api('GET','/api/logs')
-  ]);
+  var calls = [
+    api('GET','/api/items'),
+    api('GET','/api/categories'),
+    api('GET','/api/faults'),
+    api('GET','/api/components'),
+    api('GET','/api/issues')
+  ];
+  if (S.role === 'admin') calls.push(api('GET','/api/logs'));
+  var results = await Promise.all(calls);
+  if (!results[0]) return;
+  S.items      = results[0] || [];
+  S.categories = results[1] || [];
+  S.faults     = results[2] || [];
+  S.components = results[3] || [];
+  S.issues     = results[4] || [];
+  if (S.role === 'admin') S.logs = results[5] || [];
 }
 
-async function refreshAll() {
-  try { await loadAll(); } catch(e) {}
-}
-
-// ─── COMPUTED HELPERS ─────────────────────────────────────────────────────────
-function issuedQty(item) {
-  return Math.max(0, item.totalQty - item.availableQty - (item.faultyQty||0) - (item.maintenanceQty||0) - (item.retiredQty||0));
-}
-function isOverdue(issue) {
-  if (issue.status==='returned' || !issue.returnDate) return false;
-  return new Date(issue.returnDate) < new Date();
-}
-function issueStatus(issue) {
-  if (issue.status==='returned') return 'returned';
-  if (isOverdue(issue)) return 'overdue';
-  return 'issued';
-}
-
-// ─── VIEWS ────────────────────────────────────────────────────────────────────
-const viewTitles = { dashboard:'Dashboard', inventory:'Stock Inventory', issued:'Issued Items', faulty:'Faulty Items', categories:'Categories', logs:'Activity Log', settings:'Settings' };
-async function showView(view, el) {
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+view).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  if (el) el.classList.add('active');
-  document.getElementById('topbar-title').textContent = viewTitles[view]||view;
-  closeSidebar();
-  await refreshAll();
-  if (view==='dashboard')   renderDashboard();
-  if (view==='inventory')   { renderInventory(); updateCategoryFilter(); }
-  if (view==='issued')      renderIssued();
-  if (view==='faulty')      renderFaulty();
-  if (view==='categories')  renderCategories();
-  if (view==='logs')        renderLogs();
-}
-
-// ─── DASHBOARD ────────────────────────────────────────────────────────────────
-function renderDashboard() {
-  const tot  = items.reduce((s,i)=>s+i.totalQty,0);
-  const avl  = items.reduce((s,i)=>s+i.availableQty,0);
-  const iss  = items.reduce((s,i)=>s+issuedQty(i),0);
-  const flt  = items.reduce((s,i)=>s+(i.faultyQty||0),0);
-  const mnt  = items.reduce((s,i)=>s+(i.maintenanceQty||0),0);
-  document.getElementById('stat-total').textContent     = tot;
-  document.getElementById('stat-available').textContent = avl;
-  document.getElementById('stat-issued').textContent    = iss;
-  document.getElementById('stat-faulty').textContent    = flt;
-  document.getElementById('stat-maint').textContent     = mnt;
-  const activeIssues = issues.filter(i=>i.status!=='returned');
-  document.getElementById('issued-badge').textContent = activeIssues.length;
-  document.getElementById('faulty-badge').textContent = faults.length;
-
-  // Recent issued
-  const ril = document.getElementById('recent-issued-list');
-  const sortedIssues = activeIssues.sort((a,b)=>isOverdue(a)?-1:isOverdue(b)?1:0).slice(0,6);
-  ril.innerHTML = sortedIssues.length ? sortedIssues.map(i=>`
-    <div class="log-row">
-      <div class="log-avatar">${(i.issuedTo||'?').charAt(0).toUpperCase()}</div>
-      <div class="log-info">
-        <div class="log-name">${esc(i.itemName)} <span class="td-mono" style="font-size:.7rem;color:var(--accent)">×${i.qty}</span></div>
-        <div class="log-meta">${esc(i.issuedTo)} · ${esc(i.studentId)}</div>
-      </div>
-      <div class="log-due ${isOverdue(i)?'overdue':'ok'}">${i.returnDate||'—'}<br><span style="font-size:.66rem">${isOverdue(i)?'⚠ OVERDUE':'✓ OK'}</span></div>
-    </div>`).join('')
-  : `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>No items currently issued</p></div>`;
-
-  // Recent faulty
-  const rfl = document.getElementById('recent-faulty-list');
-  const faultyItems = faults.slice(0,6).map(f=>{ const it=items.find(i=>i.id===f.itemId); return { f, it }; }).filter(x=>x.it);
-  rfl.innerHTML = faultyItems.length ? faultyItems.map(({f,it})=>`
-    <div class="log-row">
-      <div class="log-avatar" style="background:var(--danger-light);color:var(--danger)">⚠</div>
-      <div class="log-info">
-        <div class="log-name">${esc(it.name)} <span class="td-mono" style="font-size:.7rem;color:var(--danger)">×${f.qty||it.faultyQty}</span></div>
-        <div class="log-meta">${esc(getCatName(it.catId))} · ${esc(it.serial)}</div>
-      </div>
-      <span class="sev-badge sev-${f.severity}">${f.severity}</span>
-    </div>`).join('')
-  : `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg><p>No faulty items — great!</p></div>`;
-}
-
-// ─── INVENTORY ────────────────────────────────────────────────────────────────
-function renderInventory() {
-  const q  = (document.getElementById('inv-search').value||'').toLowerCase();
-  const ct = document.getElementById('inv-filter-cat').value;
-  let filtered = items.filter(i=>{
-    const mq = !q || i.name.toLowerCase().includes(q) || i.serial.toLowerCase().includes(q) || getCatName(i.catId).toLowerCase().includes(q) || (i.location||'').toLowerCase().includes(q);
-    return mq && (!ct || i.catId===ct);
-  });
-  filtered.sort((a,b)=>{
-    let av = sortCol==='totalQty'?+a.totalQty:(a[sortCol]||'');
-    let bv = sortCol==='totalQty'?+b.totalQty:(b[sortCol]||'');
-    return (av>bv?1:av<bv?-1:0)*sortDir;
-  });
-  const total = filtered.length;
-  const pages = Math.max(1,Math.ceil(total/PAGE));
-  invPage = Math.min(invPage,pages);
-  const slice = filtered.slice((invPage-1)*PAGE, invPage*PAGE);
-  document.getElementById('inv-count').textContent = `(${total})`;
-
-  document.getElementById('inv-tbody').innerHTML = slice.length ? slice.map(item=>{
-    const iss = issuedQty(item);
-    const flt = item.faultyQty||0;
-    const mnt = item.maintenanceQty||0;
-    const ret = item.retiredQty||0;
-    const avl = item.availableQty;
-    const tot = item.totalQty;
-    const barSegs = [
-      { pct: avl/tot*100, cls:'avail' },
-      { pct: iss/tot*100, cls:'issued' },
-      { pct: flt/tot*100, cls:'faulty' },
-      { pct: mnt/tot*100, cls:'maint' },
-      { pct: ret/tot*100, cls:'retired' }
-    ].filter(s=>s.pct>0);
-    const bar = `<div class="stock-bar">${barSegs.map(s=>`<div class="stock-seg ${s.cls}" style="width:${s.pct.toFixed(1)}%"></div>`).join('')}</div>`;
-    const nums = `<div class="stock-nums">
-      ${avl>0?`<span class="sn avail">${avl} avail</span>`:''}
-      ${iss>0?`<span class="sn issued">${iss} issued</span>`:''}
-      ${flt>0?`<span class="sn faulty">${flt} faulty</span>`:''}
-      ${mnt>0?`<span class="sn maint">${mnt} maint</span>`:''}
-      ${ret>0?`<span class="sn retired">${ret} retired</span>`:''}
-    </div>`;
-    return `<tr>
-      <td class="td-mono">${esc(item.serial)}</td>
-      <td><strong>${highlight(item.name,q)}</strong>${item.notes?`<br><span class="td-muted">${esc(item.notes.slice(0,45))}${item.notes.length>45?'…':''}</span>`:''}</td>
-      <td><span class="cat-chip">${esc(getCatName(item.catId))}</span></td>
-      <td class="td-mono" style="font-weight:700">${tot}</td>
-      <td style="min-width:160px">${bar}${nums}</td>
-      <td class="td-muted">${esc(item.location||'—')}</td>
-      <td><div class="row-actions">
-        ${avl>0?`<button class="icon-btn" title="Issue to student" onclick="openIssueModal('${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="8"/><line x1="21" y1="6" x2="21" y2="10"/></svg></button>`:''}
-        <button class="icon-btn edit" title="Edit item" onclick="editItem('${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="icon-btn del" title="Delete item" onclick="deleteConfirm('${item.id}','item','${esc(item.name)}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
-      </div></td>
-    </tr>`;
-  }).join('')
-  : `<tr><td colspan="7"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>No items found</p></div></td></tr>`;
-
-  renderPagination('inv-pagination',invPage,pages,p=>{invPage=p;renderInventory();});
-  updateCategoryFilter();
-  document.getElementById('issued-badge').textContent = issues.filter(i=>i.status!=='returned').length;
-  document.getElementById('faulty-badge').textContent = faults.length;
-}
-
-function sortBy(col) {
-  sortDir = sortCol===col ? sortDir*-1 : 1;
-  sortCol = col;
-  document.querySelectorAll('thead th').forEach(th=>th.classList.remove('sorted'));
-  const el = document.getElementById('sort-'+col);
-  if (el) { el.textContent = sortDir===1?'↑':'↓'; el.closest('th').classList.add('sorted'); }
-  renderInventory();
-}
-
-function updateCategoryFilter() {
-  const sel = document.getElementById('inv-filter-cat');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">All Categories</option>' + categories.map(c=>`<option value="${c.id}"${c.id===cur?' selected':''}>${esc(c.name)}</option>`).join('');
-}
-
-// ─── ISSUED ───────────────────────────────────────────────────────────────────
-function renderIssued() {
-  const q    = (document.getElementById('issued-search').value||'').toLowerCase();
-  const filt = document.getElementById('issued-filter').value;
-  let filtered = issues.filter(iss=>{
-    const mq = !q || iss.itemName.toLowerCase().includes(q) || (iss.issuedTo||'').toLowerCase().includes(q) || (iss.studentId||'').toLowerCase().includes(q) || (iss.issuedBy||'').toLowerCase().includes(q);
-    if (filt==='returned') return mq && iss.status==='returned';
-    if (filt==='overdue')  return mq && iss.status!=='returned' && isOverdue(iss);
-    return mq && iss.status!=='returned'; // default: active only
-  });
-  filtered.sort((a,b)=>{ if(isOverdue(a)&&!isOverdue(b)) return -1; if(!isOverdue(a)&&isOverdue(b)) return 1; return new Date(b.createdAt)-new Date(a.createdAt); });
-  const total=filtered.length, pages=Math.max(1,Math.ceil(total/PAGE));
-  issuedPage = Math.min(issuedPage,pages);
-  const slice = filtered.slice((issuedPage-1)*PAGE,issuedPage*PAGE);
-  document.getElementById('issued-count').textContent = `(${total})`;
-  document.getElementById('issued-tbody').innerHTML = slice.length ? slice.map((iss,idx)=>{
-    const st = issueStatus(iss);
-    const badgeCls = st==='returned'?'badge-available':st==='overdue'?'badge-overdue':'badge-issued';
-    const label    = st==='returned'?'Returned':st==='overdue'?'Overdue':'Active';
-    return `<tr>
-      <td class="td-mono">${(issuedPage-1)*PAGE+idx+1}</td>
-      <td><strong>${esc(iss.itemName)}</strong></td>
-      <td class="td-mono" style="font-weight:700;color:var(--accent)">×${iss.qty}</td>
-      <td><strong>${esc(iss.issuedTo)}</strong></td>
-      <td class="td-mono">${esc(iss.studentId)}</td>
-      <td>${esc(iss.issuedBy||'—')}</td>
-      <td class="td-mono td-muted">${iss.issueDate||'—'}</td>
-      <td class="td-mono" style="${isOverdue(iss)?'color:var(--danger);font-weight:600':''}">${iss.returnDate||'—'}${isOverdue(iss)?' ⚠':''}</td>
-      <td><span class="badge ${badgeCls}">${label}</span></td>
-      <td><div class="row-actions">
-        ${iss.status!=='returned'?`<button class="btn btn-success btn-sm" onclick="returnIssue('${iss.id}')">Return</button>`:''}
-      </div></td>
-    </tr>`;
-  }).join('') : `<tr><td colspan="10"><div class="empty-state"><p>No records found</p></div></td></tr>`;
-  renderPagination('issued-pagination',issuedPage,pages,p=>{issuedPage=p;renderIssued();});
-}
-
-// ─── FAULTY ───────────────────────────────────────────────────────────────────
-function renderFaulty() {
-  const q = (document.getElementById('faulty-search').value||'').toLowerCase();
-  const fdata = faults.filter(f=>{
-    const it = items.find(i=>i.id===f.itemId);
-    if (!it) return false;
-    return !q || it.name.toLowerCase().includes(q) || it.serial.toLowerCase().includes(q) || f.desc.toLowerCase().includes(q);
-  });
-  const grid = document.getElementById('faulty-grid');
-  grid.innerHTML = fdata.length ? fdata.map(f=>{
-    const it = items.find(i=>i.id===f.itemId);
-    if (!it) return '';
-    return `<div class="faulty-card">
-      <div class="faulty-card-head">
-        <div>
-          <div class="faulty-card-name">${esc(it.name)} <span style="color:var(--danger);font-family:'DM Mono',monospace;font-size:.8rem">×${f.qty||it.faultyQty}</span></div>
-          <div class="faulty-card-sn">${esc(it.serial)} · ${esc(getCatName(it.catId))}</div>
-        </div>
-        <span class="sev-badge sev-${f.severity}">${f.severity}</span>
-      </div>
-      <div class="faulty-card-desc">${esc(f.desc)}</div>
-      <div class="faulty-card-meta">
-        <span>By: ${esc(f.reportedBy||'—')} · ${f.date||'—'}</span>
-        <div class="sn faulty">Faulty qty: ${f.qty}</div>
-      </div>
-      <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-success btn-sm" onclick="fixFault('${f.id}')">✓ Fixed</button>
-        <button class="btn btn-outline btn-sm" onclick="maintFault('${f.id}')">🔧 Maintenance</button>
-        <button class="btn btn-outline btn-sm" onclick="retireFault('${f.id}')">🗑 Retire</button>
-      </div>
-    </div>`;
-  }).join('')
-  : `<div class="empty-state" style="grid-column:1/-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg><p>No faulty items reported</p></div>`;
-}
-
-// ─── CATEGORIES ───────────────────────────────────────────────────────────────
-function renderCategories() {
-  const q = (document.getElementById('cat-search').value||'').toLowerCase();
-  const filtered = categories.filter(c=>!q||c.name.toLowerCase().includes(q));
-  document.getElementById('cat-tbody').innerHTML = filtered.length ? filtered.map((c,i)=>`
-    <tr>
-      <td class="td-mono">${i+1}</td>
-      <td><strong>${esc(c.name)}</strong></td>
-      <td class="td-muted">${esc(c.desc||'—')}</td>
-      <td class="td-mono">${items.filter(x=>x.catId===c.id).length}</td>
-      <td class="td-mono">${items.filter(x=>x.catId===c.id).reduce((s,x)=>s+x.totalQty,0)}</td>
-      <td><div class="row-actions">
-        <button class="icon-btn edit" onclick="editCategory('${c.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="icon-btn del" onclick="deleteConfirm('${c.id}','cat','${esc(c.name)}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
-      </div></td>
-    </tr>`).join('')
-  : `<tr><td colspan="6"><div class="empty-state"><p>No categories found</p></div></td></tr>`;
-}
-
-// ─── LOGS ─────────────────────────────────────────────────────────────────────
-function renderLogs() {
-  const q = (document.getElementById('log-search').value||'').toLowerCase();
-  const filtered = logs.filter(l=>!q||l.action.toLowerCase().includes(q)||l.item.toLowerCase().includes(q)||(l.user||'').toLowerCase().includes(q));
-  const logBadge = a => { if(['Added','Fixed','Returned','Maintenance Done'].includes(a)) return 'badge-available'; if(a==='Issued') return 'badge-issued'; if(['Deleted','Retired'].includes(a)) return 'badge-retired'; if(['Fault Reported','Mark Faulty'].includes(a)) return 'badge-faulty'; return 'badge-maintenance'; };
-  document.getElementById('log-tbody').innerHTML = filtered.length ? filtered.map((l,i)=>`
-    <tr>
-      <td class="td-mono">${i+1}</td>
-      <td class="td-mono td-muted">${new Date(l.time).toLocaleString()}</td>
-      <td><span class="badge ${logBadge(l.action)}">${esc(l.action)}</span></td>
-      <td><strong>${esc(l.item)}</strong></td>
-      <td>${esc(l.user||'—')}</td>
-      <td class="td-muted">${esc(l.details||'—')}</td>
-    </tr>`).join('')
-  : `<tr><td colspan="6"><div class="empty-state"><p>No logs</p></div></td></tr>`;
-}
-
-async function clearLogs() {
-  if (!confirm('Clear all activity logs?')) return;
-  try { await api('DELETE','/api/logs'); logs=[]; renderLogs(); notify('Logs cleared','success'); }
-  catch(e) { notify(e.message,'error'); }
-}
-
-// ─── ITEM MODAL ───────────────────────────────────────────────────────────────
-function autoAvailable() {
-  const tot = parseInt(document.getElementById('f-total').value)||0;
-  const flt = parseInt(document.getElementById('f-faulty').value)||0;
-  const mnt = parseInt(document.getElementById('f-maint').value)||0;
-  const avl = Math.max(0, tot - flt - mnt);
-  document.getElementById('f-available').value = avl;
-  const hint = document.getElementById('f-stock-hint');
-  const sum = avl + flt + mnt;
-  if (sum > tot) hint.style.color='var(--danger)', hint.textContent=`⚠ Breakdown (${sum}) exceeds total (${tot})`;
-  else hint.style.color='var(--text3)', hint.textContent=`Available: ${avl}  |  Issued will start at 0`;
-}
-
-function populateCategorySelect() {
-  document.getElementById('f-category').innerHTML = categories.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
-}
-
-function openAddItemModal() {
-  populateCategorySelect();
-  document.getElementById('itemModalTitle').textContent='Add New Item';
-  document.getElementById('f-edit-id').value='';
-  ['f-name','f-serial','f-location','f-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-total').value='1';
-  document.getElementById('f-available').value='1';
-  document.getElementById('f-faulty').value='0';
-  document.getElementById('f-maint').value='0';
-  document.getElementById('f-stock-hint').textContent='Available: 1  |  Issued will start at 0';
-  document.querySelectorAll('#itemModal .form-control').forEach(el=>el.classList.remove('err'));
-  openModal('itemModal');
-}
-
-function editItem(id) {
-  const item = items.find(i=>i.id===id);
-  if (!item) return;
-  populateCategorySelect();
-  document.getElementById('itemModalTitle').textContent='Edit Item';
-  document.getElementById('f-edit-id').value=item.id;
-  document.getElementById('f-name').value=item.name;
-  document.getElementById('f-serial').value=item.serial;
-  document.getElementById('f-category').value=item.catId;
-  document.getElementById('f-location').value=item.location||'';
-  document.getElementById('f-notes').value=item.notes||'';
-  document.getElementById('f-total').value=item.totalQty;
-  document.getElementById('f-available').value=item.availableQty;
-  document.getElementById('f-faulty').value=item.faultyQty||0;
-  document.getElementById('f-maint').value=item.maintenanceQty||0;
-  const iss = issuedQty(item);
-  document.getElementById('f-stock-hint').textContent = `Currently issued: ${iss} unit(s) — cannot reduce below that`;
-  openModal('itemModal');
-}
-
-async function saveItem() {
-  const editId = document.getElementById('f-edit-id').value;
-  const name   = document.getElementById('f-name').value.trim();
-  const serial = document.getElementById('f-serial').value.trim();
-  const catId  = document.getElementById('f-category').value;
-  let valid=true;
-  ['f-name','f-serial','f-category'].forEach(id=>{ const el=document.getElementById(id); if(!el.value.trim()){ el.classList.add('err'); valid=false; } else el.classList.remove('err'); });
-  if (!valid) { notify('Fill required fields (*)','error'); return; }
-  const body = {
-    name, serial, catId,
-    totalQty:       +document.getElementById('f-total').value||1,
-    availableQty:   +document.getElementById('f-available').value||0,
-    faultyQty:      +document.getElementById('f-faulty').value||0,
-    maintenanceQty: +document.getElementById('f-maint').value||0,
-    retiredQty:     0,
-    location: document.getElementById('f-location').value.trim(),
-    notes:    document.getElementById('f-notes').value.trim()
-  };
-  setBtnLoading('itemSaveBtn',true);
+// ── INIT ───────────────────────────────────────────────────────────────────────
+async function init() {
   try {
-    if (editId) {
-      const upd = await api('PUT',`/api/items/${editId}`,body);
-      const idx = items.findIndex(i=>i.id===editId); if(idx>-1) items[idx]=upd;
+    var sess = await api('GET','/api/session');
+    if (!sess || !sess.loggedIn) { window.location.href='/login'; return; }
+    S.role = sess.role || 'student';
+    document.getElementById('userName').textContent = sess.name || 'User';
+    document.getElementById('userRole').textContent = (sess.role==='admin'?'Administrator':'Student');
+    document.getElementById('userAv').textContent   = (sess.name||'U').charAt(0).toUpperCase();
+    if (S.role !== 'admin') {
+      document.body.classList.add('role-student');
+      // Show the student-only info card in Settings
+      var infoCard = document.getElementById('student-settings-info');
+      if (infoCard) infoCard.style.display = 'block';
+    }
+    await loadAll();
+    renderDashboard(); renderInventory(); renderComponents();
+    updateCatFilter(); updateCompCatFilter(); updateIssCatFilter();
+    updateBadges();
+  } catch(e) {
+    notify('Failed to load: '+e.message,'error');
+  } finally {
+    document.getElementById('pageLoading').classList.add('hidden');
+  }
+}
+
+// ── VIEWS ──────────────────────────────────────────────────────────────────────
+var VIEW_TITLES = { dashboard:'Dashboard', components:'Components', inventory:'Inventory', issued:'Issued Items', faulty:'Faulty / Repair', categories:'Categories', settings:'Settings' };
+
+async function showView(name) {
+  if (S.role !== 'admin' && name === 'categories') name = 'dashboard';
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+  var el = document.getElementById('view-'+name);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item[data-view]').forEach(function(b){ b.classList.toggle('active', b.dataset.view===name); });
+  document.getElementById('topbarTitle').textContent = VIEW_TITLES[name] || name;
+  closeSidebar();
+  try { await loadAll(); } catch(e) {}
+  if (name==='dashboard')  renderDashboard();
+  if (name==='components') { renderComponents(); updateCompCatFilter(); }
+  if (name==='inventory')  { renderInventory(); updateCatFilter(); }
+  if (name==='issued')     { renderIssued(); updateIssCatFilter(); }
+  if (name==='faulty')     renderFaulty();
+  if (name==='categories') renderCategories();
+  if (name==='settings' && S.role==='admin') renderLogs();
+  updateBadges();
+}
+
+document.querySelectorAll('.nav-item[data-view]').forEach(function(btn){
+  btn.addEventListener('click', function(){ showView(btn.dataset.view); });
+});
+
+// ── BADGES ─────────────────────────────────────────────────────────────────────
+function updateBadges() {
+  var activeIssues = S.issues.filter(function(i){ return i.status==='active'; }).length;
+  var faultyItems  = S.items.filter(function(i){ return (i.qtyFaulty||0)+(i.qtyMaintenance||0) > 0; }).length;
+  document.getElementById('badge-issued').textContent = activeIssues;
+  document.getElementById('badge-faulty').textContent = faultyItems;
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  var tot=0, avl=0, iss=0, flt=0, maint=0;
+  S.items.forEach(function(i){
+    tot   += i.totalQty||0;
+    avl   += i.qtyAvailable||0;
+    iss   += i.qtyIssued||0;
+    flt   += i.qtyFaulty||0;
+    maint += i.qtyMaintenance||0;
+  });
+  document.getElementById('st-total').textContent = tot;
+  document.getElementById('st-avail').textContent = avl;
+  document.getElementById('st-issued').textContent= iss;
+  document.getElementById('st-faulty').textContent= flt;
+  document.getElementById('st-maint').textContent = maint;
+
+  var activeIss = S.issues.filter(function(i){ return i.status==='active'; }).slice(0,6);
+  document.getElementById('dash-issued').innerHTML = activeIss.length ? activeIss.map(function(iss){
+    var od = isOverdue(iss);
+    return '<div class="log-row">'+
+      '<div class="log-av">'+esc((iss.issuedTo||'?').charAt(0))+'</div>'+
+      '<div class="log-info"><div class="log-name">'+esc(iss.itemName||'?')+'</div><div class="log-meta">'+esc(iss.issuedTo||'—')+' · '+esc(iss.studentId||'')+' · Qty: '+iss.qty+'</div></div>'+
+      '<div class="log-due '+(od?'overdue':'ok')+'">'+(iss.returnDate||'—')+'<br><span style="font-size:.67rem">'+(od?'⚠ OVERDUE':'✓ OK')+'</span></div>'+
+    '</div>';
+  }).join('') : emptyState('No items currently issued');
+
+  var faultyItems = S.items.filter(function(i){ return (i.qtyFaulty||0)+(i.qtyMaintenance||0)>0; }).slice(0,6);
+  document.getElementById('dash-faulty').innerHTML = faultyItems.length ? faultyItems.map(function(i){
+    var pcs = [];
+    if (i.qtyFaulty)      pcs.push('<span class="qty-pill faulty">'+i.qtyFaulty+' faulty</span>');
+    if (i.qtyMaintenance) pcs.push('<span class="qty-pill maint">'+i.qtyMaintenance+' repair</span>');
+    return '<div class="log-row">'+
+      '<div class="log-av" style="background:var(--danger-light);color:var(--danger)">⚠</div>'+
+      '<div class="log-info"><div class="log-name">'+esc(i.name)+'</div><div class="log-meta">'+esc(catName(i.catId))+'</div></div>'+
+      '<div>'+pcs.join('')+'</div>'+
+    '</div>';
+  }).join('') : emptyState('No faulty items — great!');
+}
+
+// ── INVENTORY ──────────────────────────────────────────────────────────────────
+function renderInventory() {
+  var q   = (document.getElementById('inv-q').value||'').toLowerCase();
+  var cat = document.getElementById('inv-cat').value;
+
+  var filtered = S.items.filter(function(i){
+    var mq = !q || i.name.toLowerCase().includes(q) || i.serial.toLowerCase().includes(q) || catName(i.catId).toLowerCase().includes(q);
+    return mq && (!cat || i.catId===cat);
+  });
+
+  filtered.sort(function(a,b){
+    var av = S.sortCol==='totalQty' ? +a.totalQty : (a[S.sortCol]||'');
+    var bv = S.sortCol==='totalQty' ? +b.totalQty : (b[S.sortCol]||'');
+    return (av>bv?1:av<bv?-1:0)*S.sortDir;
+  });
+
+  var total = filtered.length, pages = Math.max(1,Math.ceil(total/PAGE));
+  S.invPage = Math.min(S.invPage, pages);
+  var slice = filtered.slice((S.invPage-1)*PAGE, S.invPage*PAGE);
+
+  document.getElementById('inv-count').textContent = ' ('+total+')';
+  document.getElementById('inv-tbody').innerHTML = slice.length ? slice.map(function(i){
+    var avail  = i.qtyAvailable||0;
+    var issued = i.qtyIssued||0;
+    var faulty = i.qtyFaulty||0;
+    var maint  = i.qtyMaintenance||0;
+    var total  = i.totalQty||0;
+    var pcts = [];
+    pcts.push('<span class="qty-pill avail">'+avail+' avail</span>');
+    if (issued>0) pcts.push('<span class="qty-pill issued">'+issued+' issued</span>');
+    if (faulty>0) pcts.push('<span class="qty-pill faulty">'+faulty+' faulty</span>');
+    if (maint>0)  pcts.push('<span class="qty-pill maint">'+maint+' repair</span>');
+    pcts.push('<span class="qty-pill total">'+total+' total</span>');
+    return '<tr>'+
+      '<td class="td-mono">'+esc(i.serial)+'</td>'+
+      '<td><strong>'+hi(i.name,q)+'</strong>'+(i.notes?'<br><span class="td-muted">'+esc(i.notes.slice(0,42))+(i.notes.length>42?'…':'')+'</span>':'')+'</td>'+
+      '<td><span class="cat-chip">'+esc(catName(i.catId))+'</span></td>'+
+      '<td><div class="qty-row">'+pcts.join('')+'</div></td>'+
+      '<td class="td-mono">'+(i.location?esc(i.location):'<span class="td-muted">—</span>')+'</td>'+
+      '<td class="admin-only"><div class="row-actions">'+
+        (avail>0?'<button class="icon-btn issue-btn" title="Issue units to student" data-issue="'+i.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></button>':'<span style="width:29px;display:inline-block"></span>')+
+        '<button class="icon-btn edit" title="Edit" data-edit="'+i.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+
+        '<button class="icon-btn del" title="Delete" data-del="'+i.id+'" data-del-type="item" data-del-name="'+esc(i.name)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'+
+      '</div></td></tr>';
+  }).join('') : '<tr><td colspan="6">'+emptyState('No items found')+'</td></tr>';
+  renderPg('inv-pg',S.invPage,pages,function(p){ S.invPage=p; renderInventory(); });
+}
+
+document.querySelectorAll('#view-inventory thead th[data-col]').forEach(function(th){
+  th.addEventListener('click',function(){
+    var col=th.dataset.col;
+    if(S.sortCol===col) S.sortDir*=-1; else{S.sortCol=col;S.sortDir=1;}
+    document.querySelectorAll('#view-inventory thead th').forEach(function(t){t.classList.remove('sorted');});
+    th.classList.add('sorted');
+    renderInventory();
+  });
+});
+document.getElementById('inv-tbody').addEventListener('click',function(e){
+  var btn=e.target.closest('button');
+  if(!btn) return;
+  if(btn.dataset.issue) openIssueModal(btn.dataset.issue);
+  if(btn.dataset.edit)  openEditItem(btn.dataset.edit);
+  if(btn.dataset.del)   openDelConfirm(btn.dataset.del,btn.dataset.delType,btn.dataset.delName);
+});
+document.getElementById('inv-q').addEventListener('input',function(){ S.invPage=1; renderInventory(); });
+document.getElementById('inv-cat').addEventListener('change',function(){ S.invPage=1; renderInventory(); });
+
+function updateCatFilter() {
+  var sel=document.getElementById('inv-cat'), cur=sel.value;
+  sel.innerHTML='<option value="">All Categories</option>'+S.categories.map(function(c){return '<option value="'+c.id+'"'+(c.id===cur?' selected':'')+'>'+esc(c.name)+'</option>';}).join('');
+}
+
+// ── COMPONENTS ─────────────────────────────────────────────────────────────────
+function updateCompCatFilter() {
+  var sel=document.getElementById('comp-cat'), cur=sel.value;
+  sel.innerHTML='<option value="">All Categories</option>'+S.categories.map(function(c){return '<option value="'+c.id+'"'+(c.id===cur?' selected':'')+'>'+esc(c.name)+'</option>';}).join('');
+}
+
+function renderComponents() {
+  var q   = (document.getElementById('comp-q').value||'').toLowerCase();
+  var cat = document.getElementById('comp-cat').value;
+  var list = S.components.filter(function(c){
+    return (!q||c.name.toLowerCase().includes(q)) && (!cat||c.catId===cat);
+  });
+  var grid = document.getElementById('comp-grid');
+  if (!list.length) { grid.innerHTML=emptyState('No components found'); return; }
+  grid.innerHTML = list.map(function(c,idx){
+    var shelves = c.shelves.length
+      ? c.shelves.map(function(s){return '<span class="comp-shelf-chip">'+esc(s)+'</span>';}).join('')
+      : '<span class="td-muted">No shelf assigned</span>';
+    var details = (c.items||[]).map(function(r){
+      var pcts='<div class="qty-row" style="margin-top:3px">';
+      pcts+='<span class="qty-pill avail">'+r.qtyAvailable+' avail</span>';
+      if(r.qtyIssued>0)  pcts+='<span class="qty-pill issued">'+r.qtyIssued+' issued</span>';
+      if(r.qtyFaulty>0)  pcts+='<span class="qty-pill faulty">'+r.qtyFaulty+' faulty</span>';
+      if(r.qtyMaintenance>0) pcts+='<span class="qty-pill maint">'+r.qtyMaintenance+' repair</span>';
+      pcts+='</div>';
+      return '<div class="comp-detail-row"><div class="comp-detail-left"><span class="comp-detail-serial">'+esc(r.serial)+'</span><span class="comp-detail-meta">Total: '+r.totalQty+(r.location?' · Shelf: '+esc(r.location):'')+'</span>'+pcts+'</div></div>';
+    }).join('');
+    return '<div class="comp-card" data-comp-idx="'+idx+'">'+
+      '<div class="comp-card-head">'+
+        '<div><div class="comp-card-name">'+esc(c.name)+'</div><span class="cat-chip" style="margin-top:6px;display:inline-block">'+esc(catName(c.catId))+'</span></div>'+
+        '<div style="text-align:right;display:flex;align-items:flex-start;gap:6px">'+
+          '<div><div class="comp-card-total">'+c.qtyAvailable+'</div><div class="comp-card-total-label">Available</div></div>'+
+          '<svg class="comp-expand-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>'+
+        '</div>'+
+      '</div>'+
+      '<div class="comp-stat-row">'+
+        '<div class="comp-stat avail"><div class="comp-stat-num">'+c.qtyAvailable+'</div><div class="comp-stat-lbl">Available</div></div>'+
+        '<div class="comp-stat issued"><div class="comp-stat-num">'+c.qtyIssued+'</div><div class="comp-stat-lbl">Issued</div></div>'+
+        '<div class="comp-stat faulty"><div class="comp-stat-num">'+c.qtyFaulty+'</div><div class="comp-stat-lbl">Faulty</div></div>'+
+        '<div class="comp-stat maint"><div class="comp-stat-num">'+c.qtyMaintenance+'</div><div class="comp-stat-lbl">Repair</div></div>'+
+        '<div class="comp-stat total"><div class="comp-stat-num" style="color:var(--text2)">'+c.totalQty+'</div><div class="comp-stat-lbl">Total</div></div>'+
+      '</div>'+
+      '<div class="comp-shelves">📍 '+shelves+'</div>'+
+      '<div class="comp-detail">'+details+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+document.getElementById('comp-grid').addEventListener('click',function(e){
+  var card=e.target.closest('.comp-card'); if(!card) return; card.classList.toggle('open');
+});
+document.getElementById('comp-q').addEventListener('input',renderComponents);
+document.getElementById('comp-cat').addEventListener('change',renderComponents);
+
+// ── ISSUED VIEW ────────────────────────────────────────────────────────────────
+function updateIssCatFilter() {
+  var sel=document.getElementById('iss-cat'), cur=sel.value;
+  sel.innerHTML='<option value="">All Categories</option>'+S.categories.map(function(c){return '<option value="'+c.id+'"'+(c.id===cur?' selected':'')+'>'+esc(c.name)+'</option>';}).join('');
+}
+
+function renderIssued() {
+  var q      = (document.getElementById('iss-q').value||'').toLowerCase();
+  var stFil  = document.getElementById('iss-st').value;
+  var catFil = document.getElementById('iss-cat').value;
+
+  var filtered = S.issues.filter(function(iss){
+    var mq = !q || (iss.itemName||'').toLowerCase().includes(q) || (iss.issuedTo||'').toLowerCase().includes(q) || (iss.studentId||'').toLowerCase().includes(q) || (iss.itemSerial||'').toLowerCase().includes(q);
+    var mc = !catFil || iss.catId===catFil;
+    var od = isOverdue(iss);
+    if (stFil==='active')  return mq && mc && iss.status==='active';
+    if (stFil==='overdue') return mq && mc && iss.status==='active' && od;
+    return mq && mc;
+  });
+
+  filtered.sort(function(a,b){
+    var av=a[S.issSortCol]||'', bv=b[S.issSortCol]||'';
+    if (S.issSortCol==='qty') { av=+a.qty; bv=+b.qty; }
+    return (av>bv?1:av<bv?-1:0)*S.issSortDir;
+  });
+
+  var total=filtered.length, pages=Math.max(1,Math.ceil(total/PAGE));
+  S.issPage=Math.min(S.issPage,pages);
+  var slice=filtered.slice((S.issPage-1)*PAGE, S.issPage*PAGE);
+
+  document.getElementById('iss-count').textContent=' ('+total+')';
+  document.getElementById('iss-tbody').innerHTML = slice.length ? slice.map(function(iss,idx){
+    var od=isOverdue(iss);
+    var statusBadge = iss.status==='returned' ? '<span class="badge badge-returned">Returned</span>' : (od?'<span class="badge badge-overdue">Overdue</span>':'<span class="badge badge-issued">Active</span>');
+    return '<tr>'+
+      '<td class="td-mono">'+(S.issPage-1)*PAGE+idx+1+'</td>'+
+      '<td><strong>'+esc(iss.itemName||'—')+'</strong></td>'+
+      '<td class="td-mono">'+esc(iss.itemSerial||'—')+'</td>'+
+      '<td><span class="cat-chip">'+esc(catName(iss.catId))+'</span></td>'+
+      '<td class="td-mono" style="font-weight:700;color:var(--accent)">'+iss.qty+'</td>'+
+      '<td><strong>'+esc(iss.issuedTo||'—')+'</strong></td>'+
+      '<td class="td-mono">'+esc(iss.studentId||'—')+'</td>'+
+      '<td class="td-mono">'+(iss.issueDate||'—')+'</td>'+
+      '<td class="td-mono" style="'+(od&&iss.status==='active'?'color:var(--danger);font-weight:600':'')+'">'+
+        (iss.returnDate||'—')+(od&&iss.status==='active'?' ⚠':'')+
+      '</td>'+
+      '<td>'+statusBadge+'</td>'+
+      '<td class="admin-only"><div class="row-actions">'+
+        (iss.status==='active'?'<button class="icon-btn ret-btn" title="Mark as returned" data-return-iss="'+iss.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg></button>':'')+
+      '</div></td>'+
+    '</tr>';
+  }).join('') : '<tr><td colspan="11">'+emptyState('No issue records found')+'</td></tr>';
+  renderPg('iss-pg',S.issPage,pages,function(p){ S.issPage=p; renderIssued(); });
+}
+
+document.querySelectorAll('#view-issued thead th[data-col-iss]').forEach(function(th){
+  th.addEventListener('click',function(){
+    var col=th.dataset.colIss;
+    if(S.issSortCol===col) S.issSortDir*=-1; else{S.issSortCol=col;S.issSortDir=1;}
+    document.querySelectorAll('#view-issued thead th').forEach(function(t){t.classList.remove('sorted');});
+    th.classList.add('sorted');
+    renderIssued();
+  });
+});
+document.getElementById('iss-tbody').addEventListener('click',function(e){
+  var btn=e.target.closest('button'); if(!btn) return;
+  if(btn.dataset.returnIss) doReturnIssue(btn.dataset.returnIss);
+});
+document.getElementById('iss-q').addEventListener('input',function(){ S.issPage=1; renderIssued(); });
+document.getElementById('iss-st').addEventListener('change',function(){ S.issPage=1; renderIssued(); });
+document.getElementById('iss-cat').addEventListener('change',function(){ S.issPage=1; renderIssued(); });
+
+// ── FAULTY VIEW ────────────────────────────────────────────────────────────────
+function renderFaulty() {
+  var q      = (document.getElementById('flt-q').value||'').toLowerCase();
+  var sevFil = document.getElementById('flt-sev-filter').value;
+  var sevCol = {low:'var(--warning)',medium:'var(--orange)',high:'var(--danger)',critical:'#7f1d1d'};
+
+  var items = S.items.filter(function(i){
+    var hasFault = (i.qtyFaulty||0)+(i.qtyMaintenance||0)>0;
+    var mq = !q || i.name.toLowerCase().includes(q) || i.serial.toLowerCase().includes(q);
+    return hasFault && mq;
+  });
+
+  if (sevFil) {
+    items = items.filter(function(i){
+      return S.faults.some(function(f){ return f.itemId===i.id && f.severity===sevFil && f.status!=='fixed'; });
+    });
+  }
+
+  document.getElementById('flt-grid').innerHTML = items.length ? items.map(function(i){
+    var itemFaults = S.faults.filter(function(f){ return f.itemId===i.id && f.status!=='fixed'; });
+    var topFault   = itemFaults[0];
+    var sev        = topFault ? topFault.severity : 'unknown';
+    var desc       = topFault ? topFault.desc : (i.notes||'No description provided');
+    var reporter   = topFault ? topFault.reportedBy : '';
+    var faultDate  = topFault ? topFault.date : '';
+    var faultId    = topFault ? topFault.id : '';
+    var isMaint    = (i.qtyMaintenance||0)>0 && !(i.qtyFaulty||0);
+
+    var qtyInfo='<div class="faulty-card-qty">';
+    if (i.qtyFaulty||0)      qtyInfo+='<span class="qty-pill faulty">'+(i.qtyFaulty)+' faulty</span>';
+    if (i.qtyMaintenance||0) qtyInfo+='<span class="qty-pill maint">'+(i.qtyMaintenance)+' in repair</span>';
+    if (i.qtyAvailable||0)   qtyInfo+='<span class="qty-pill avail">'+(i.qtyAvailable)+' available</span>';
+    qtyInfo+='<span class="qty-pill total">'+(i.totalQty)+' total</span></div>';
+
+    return '<div class="faulty-card">'+
+      '<div class="faulty-card-head"><div><div class="faulty-card-name">'+esc(i.name)+'</div><div class="faulty-card-sn">'+esc(i.serial)+'</div></div>'+
+        (isMaint ? '<span class="badge badge-maintenance">In Repair</span>' : '<span class="badge badge-faulty">Faulty</span>')+
+      '</div>'+
+      qtyInfo+
+      '<div class="faulty-card-desc">'+esc(desc)+(reporter?'<br><span style="font-size:.72rem;color:var(--text3)">Reported by '+esc(reporter)+(faultDate?' on '+faultDate:'')+'</span>':'')+'</div>'+
+      '<div class="faulty-card-foot"><span class="cat-chip">'+esc(catName(i.catId))+'</span><span style="color:'+(sevCol[sev]||'var(--text3)')+';font-weight:700;font-size:.71rem">'+sev.toUpperCase()+'</span></div>'+
+      '<div class="admin-only" style="margin-top:12px;display:flex;gap:7px;flex-wrap:wrap">'+
+        (faultId&&(i.qtyFaulty||0)>0?'<button class="btn btn-success btn-sm" data-fix="'+faultId+'">✓ Mark Fixed</button>':'')+ 
+        (faultId&&(i.qtyFaulty||0)>0?'<button class="btn btn-warning btn-sm" data-maint-fault="'+faultId+'">🔧 Send Repair</button>':'')+
+        ((i.qtyMaintenance||0)>0?'<button class="btn btn-outline btn-sm" data-fix-maint="'+i.id+'" data-fix-maint-max="'+(i.qtyMaintenance)+'">↩ Repair Done</button>':'')+
+        '<button class="icon-btn del" data-del="'+i.id+'" data-del-type="item" data-del-name="'+esc(i.name)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'+
+      '</div></div>';
+  }).join('') : '<div class="empty-state" style="grid-column:1/-1">'+emptyState('No faulty or in-repair items — great job!')+'</div>';
+}
+
+document.getElementById('flt-grid').addEventListener('click',async function(e){
+  var btn=e.target.closest('button'); if(!btn) return;
+  if(btn.dataset.fix)       await doFixFault(btn.dataset.fix);
+  if(btn.dataset.maintFault)await doMaintFault(btn.dataset.maintFault);
+  if(btn.dataset.fixMaint)  await doFixMaint(btn.dataset.fixMaint, btn.dataset.fixMaintMax);
+  if(btn.dataset.del)       openDelConfirm(btn.dataset.del,btn.dataset.delType,btn.dataset.delName);
+});
+document.getElementById('flt-q').addEventListener('input',renderFaulty);
+document.getElementById('flt-sev-filter').addEventListener('change',renderFaulty);
+
+// ── CATEGORIES ─────────────────────────────────────────────────────────────────
+function renderCategories() {
+  var q=document.getElementById('cat-q').value.toLowerCase();
+  var cats=S.categories.filter(function(c){ return !q||c.name.toLowerCase().includes(q); });
+  document.getElementById('cat-tbody').innerHTML=cats.length?cats.map(function(c,i){
+    var cnt=S.items.filter(function(x){return x.catId===c.id;}).length;
+    return '<tr><td class="td-mono">'+(i+1)+'</td><td><strong>'+esc(c.name)+'</strong></td><td class="td-muted">'+esc(c.desc||'—')+'</td><td class="td-mono">'+cnt+'</td>'+
+      '<td><div class="row-actions">'+
+        '<button class="icon-btn edit" data-cat-edit="'+c.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+
+        '<button class="icon-btn del" data-del="'+c.id+'" data-del-type="cat" data-del-name="'+esc(c.name)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'+
+      '</div></td></tr>';
+  }).join(''):'<tr><td colspan="5">'+emptyState('No categories found')+'</td></tr>';
+}
+document.getElementById('cat-tbody').addEventListener('click',function(e){
+  var btn=e.target.closest('button'); if(!btn) return;
+  if(btn.dataset.catEdit) openEditCat(btn.dataset.catEdit);
+  if(btn.dataset.del)     openDelConfirm(btn.dataset.del,btn.dataset.delType,btn.dataset.delName);
+});
+document.getElementById('cat-q').addEventListener('input',renderCategories);
+
+// ── LOGS ───────────────────────────────────────────────────────────────────────
+function renderLogs() {
+  var q=document.getElementById('log-q').value.toLowerCase();
+  var logs=S.logs.filter(function(l){ return !q||l.action.toLowerCase().includes(q)||l.item.toLowerCase().includes(q)||(l.user||'').toLowerCase().includes(q); });
+  document.getElementById('log-count').textContent=' ('+logs.length+')';
+  var lb=function(a){ if(['Added','Fixed','Fixed (Maintenance)','Returned','System Init'].indexOf(a)>=0) return 'badge-available'; if(a==='Issued') return 'badge-issued'; if(['Deleted','Category Deleted'].indexOf(a)>=0) return 'badge-retired'; if(a==='Fault Reported') return 'badge-faulty'; return 'badge-maintenance'; };
+  document.getElementById('log-tbody').innerHTML=logs.length?logs.map(function(l,i){
+    return '<tr><td class="td-mono">'+(i+1)+'</td><td class="td-mono td-muted">'+new Date(l.time).toLocaleString()+'</td><td><span class="badge '+lb(l.action)+'">'+esc(l.action)+'</span></td><td><strong>'+esc(l.item)+'</strong></td><td>'+esc(l.user||'—')+'</td><td class="td-muted">'+esc(l.details||'—')+'</td></tr>';
+  }).join(''):'<tr><td colspan="6">'+emptyState('No activity logs')+'</td></tr>';
+}
+document.getElementById('log-q').addEventListener('input',renderLogs);
+
+// ── ITEM CRUD ──────────────────────────────────────────────────────────────────
+function populateCatSelect(selId) {
+  document.getElementById(selId||'f-cat').innerHTML = S.categories.map(function(c){ return '<option value="'+c.id+'">'+esc(c.name)+'</option>'; }).join('');
+}
+
+function updateQtyPreview() {
+  var total   = parseInt(document.getElementById('f-qty').value)||0;
+  var faulty  = parseInt(document.getElementById('f-qfaulty').value)||0;
+  var maint   = parseInt(document.getElementById('f-qmaint').value)||0;
+  var retired = parseInt(document.getElementById('f-qretired').value)||0;
+  var avail   = total - faulty - maint - retired;
+  document.getElementById('f-qty-preview').innerHTML =
+    '<strong>Available: '+(avail>=0?avail:'<span style="color:var(--danger)">'+avail+' (over-allocated!)</span>')+'</strong>';
+}
+
+function openAddItem() {
+  populateCatSelect();
+  document.getElementById('itemModalTitle').textContent='Add New Item';
+  document.getElementById('f-id').value='';
+  ['f-name','f-serial','f-loc','f-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('f-qty').value='1';
+  document.getElementById('f-qty-adj').style.display='none';
+  document.querySelectorAll('#itemModal .form-control').forEach(function(el){ el.classList.remove('err-field'); });
+  openModal('itemModal');
+}
+
+function openEditItem(id) {
+  var item=S.items.find(function(i){return i.id===id;}); if(!item) return;
+  populateCatSelect();
+  document.getElementById('itemModalTitle').textContent='Edit Item';
+  document.getElementById('f-id').value     =item.id;
+  document.getElementById('f-name').value   =item.name;
+  document.getElementById('f-serial').value =item.serial;
+  document.getElementById('f-cat').value    =item.catId;
+  document.getElementById('f-qty').value    =item.totalQty;
+  document.getElementById('f-loc').value    =item.location||'';
+  document.getElementById('f-notes').value  =item.notes||'';
+  document.getElementById('f-qfaulty').value  =item.qtyFaulty||0;
+  document.getElementById('f-qmaint').value   =item.qtyMaintenance||0;
+  document.getElementById('f-qretired').value =item.qtyRetired||0;
+  document.getElementById('f-qty-adj').style.display='block';
+  updateQtyPreview();
+  document.querySelectorAll('#itemModal .form-control').forEach(function(el){ el.classList.remove('err-field'); });
+  openModal('itemModal');
+}
+
+['f-qty','f-qfaulty','f-qmaint','f-qretired'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el) el.addEventListener('input',updateQtyPreview);
+});
+
+document.getElementById('saveItemBtn').addEventListener('click',async function(){
+  var name  =document.getElementById('f-name').value.trim();
+  var serial=document.getElementById('f-serial').value.trim();
+  var catId =document.getElementById('f-cat').value;
+  var editId=document.getElementById('f-id').value;
+  var valid=true;
+  [['f-name',name],['f-serial',serial],['f-cat',catId]].forEach(function(pair){
+    var el=document.getElementById(pair[0]);
+    if(!pair[1]){el.classList.add('err-field');valid=false;}else el.classList.remove('err-field');
+  });
+  if(!valid){notify('Fill in the required fields (*)','error');return;}
+  var body={
+    name:name, serial:serial, catId:catId,
+    totalQty:+document.getElementById('f-qty').value||1,
+    location:document.getElementById('f-loc').value.trim(),
+    notes:document.getElementById('f-notes').value.trim()
+  };
+  if(editId){
+    body.qtyFaulty      =+document.getElementById('f-qfaulty').value||0;
+    body.qtyMaintenance =+document.getElementById('f-qmaint').value||0;
+    body.qtyRetired     =+document.getElementById('f-qretired').value||0;
+  }
+  setBtnLoad('saveItemBtn',true);
+  try {
+    if(editId){
+      var updated=await api('PUT','/api/items/'+editId,body);
+      var idx=S.items.findIndex(function(i){return i.id===editId;});
+      if(idx>-1) S.items[idx]=updated;
       notify('Item updated!','success');
     } else {
-      const created = await api('POST','/api/items',body);
-      items.push(created); notify('Item added!','success');
+      var created=await api('POST','/api/items',body);
+      S.items.push(created);
+      notify('Item added!','success');
     }
-    closeModal('itemModal'); renderInventory(); renderDashboard();
-  } catch(e) { notify(e.message,'error'); }
-  finally { setBtnLoading('itemSaveBtn',false); }
-}
+    closeModal('itemModal');
+    await loadAll();
+    renderInventory(); renderDashboard(); updateBadges(); renderComponents();
+  } catch(e){ notify(e.message,'error'); }
+  finally { setBtnLoad('saveItemBtn',false); }
+});
 
-function deleteConfirm(id, type, name) {
-  pendingDelete=id; pendingDeleteType=type;
-  document.getElementById('delete-name').textContent=name;
-  openModal('deleteModal');
-}
-
-async function confirmDelete() {
-  if (!pendingDelete) return;
-  try {
-    if (pendingDeleteType==='item') {
-      await api('DELETE',`/api/items/${pendingDelete}`);
-      items  = items.filter(i=>i.id!==pendingDelete);
-      faults = faults.filter(f=>f.itemId!==pendingDelete);
-      issues = issues.filter(is=>is.itemId!==pendingDelete);
-      notify('Item deleted','success');
-      renderInventory(); renderDashboard(); renderFaulty(); renderIssued();
-    } else {
-      await api('DELETE',`/api/categories/${pendingDelete}`);
-      categories = categories.filter(c=>c.id!==pendingDelete);
-      notify('Category deleted','success');
-      renderCategories(); updateCategoryFilter();
-    }
-  } catch(e) { notify(e.message,'error'); }
-  closeModal('deleteModal'); pendingDelete=null;
-}
-
-// ─── ISSUE ────────────────────────────────────────────────────────────────────
+// ── ISSUE ──────────────────────────────────────────────────────────────────────
 function openIssueModal(itemId) {
-  const item = items.find(i=>i.id===itemId);
-  if (!item) return;
-  document.getElementById('issue-item-name').textContent = `${item.name} (${item.serial})`;
-  document.getElementById('issue-avail-info').textContent = `${item.availableQty} unit(s) available to issue`;
-  document.getElementById('i-item-id').value = itemId;
-  document.getElementById('i-qty').value = '1';
-  document.getElementById('i-qty').max = item.availableQty;
-  ['i-student-name','i-student-id','i-notes'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('i-issue-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('i-return-date').value = '';
+  var item=S.items.find(function(i){return i.id===itemId;}); if(!item) return;
+  document.getElementById('iss-item-name').textContent=item.name+' ('+item.serial+')';
+  var av=item.qtyAvailable||0, iss=item.qtyIssued||0, tot=item.totalQty||0;
+  document.getElementById('iss-item-stock').innerHTML=
+    '<span class="qty-pill avail">'+av+' available</span>'+
+    (iss>0?'<span class="qty-pill issued">'+iss+' already issued</span>':'')+
+    '<span class="qty-pill total">'+tot+' total</span>';
+  document.getElementById('iss-id').value    =itemId;
+  document.getElementById('iss-qty').value   ='1';
+  document.getElementById('iss-qty').max     =av;
+  document.getElementById('iss-name').value  ='';
+  document.getElementById('iss-sid').value   ='';
+  document.getElementById('iss-idate').value =new Date().toISOString().split('T')[0];
+  document.getElementById('iss-rdate').value ='';
+  document.getElementById('iss-notes').value ='';
   openModal('issueModal');
 }
 
-async function confirmIssue() {
-  const itemId     = document.getElementById('i-item-id').value;
-  const issuedTo   = document.getElementById('i-student-name').value.trim();
-  const studentId  = document.getElementById('i-student-id').value.trim();
-  const qty        = parseInt(document.getElementById('i-qty').value)||1;
-  const issueDate  = document.getElementById('i-issue-date').value;
-  const returnDate = document.getElementById('i-return-date').value;
-  const notes      = document.getElementById('i-notes').value.trim();
-  if (!issuedTo||!studentId||!issueDate) { notify('Student name, ID and issue date required','error'); return; }
+document.getElementById('confirmIssueBtn').addEventListener('click',async function(){
+  var itemId =document.getElementById('iss-id').value;
+  var qty    =parseInt(document.getElementById('iss-qty').value)||1;
+  var name   =document.getElementById('iss-name').value.trim();
+  var sid    =document.getElementById('iss-sid').value.trim();
+  var idate  =document.getElementById('iss-idate').value;
+  var rdate  =document.getElementById('iss-rdate').value;
+  var notes  =document.getElementById('iss-notes').value.trim();
+  if(!name||!sid||!idate){notify('Student name, ID and issue date are required','error');return;}
+  if(qty<1){notify('Quantity must be at least 1','error');return;}
+  setBtnLoad('confirmIssueBtn',true);
   try {
-    const res = await api('POST',`/api/items/${itemId}/issue`,{ issuedTo, studentId, qty, issueDate, returnDate, notes });
-    const idx = items.findIndex(i=>i.id===itemId); if(idx>-1) items[idx]=res.item;
-    issues.push(res.issue);
-    notify(`Issued ${qty} unit(s) to ${issuedTo}`,'success');
+    var res=await api('POST','/api/items/'+itemId+'/issue',{issuedTo:name,studentId:sid,issueDate:idate,returnDate:rdate,notes:notes,qty:qty});
+    var idx=S.items.findIndex(function(i){return i.id===itemId;});
+    if(idx>-1) S.items[idx]=res.item;
+    S.issues.unshift({...res.issue, itemName:S.items[idx]?S.items[idx].name:'', itemSerial:S.items[idx]?S.items[idx].serial:'', catId:S.items[idx]?S.items[idx].catId:''});
+    notify('Issued '+qty+' unit(s) to '+name,'success');
     closeModal('issueModal');
-    renderInventory(); renderIssued(); renderDashboard();
-  } catch(e) { notify(e.message,'error'); }
-}
+    await loadAll();
+    renderInventory(); renderIssued(); renderDashboard(); updateBadges(); renderComponents();
+  } catch(e){ notify(e.message,'error'); }
+  finally { setBtnLoad('confirmIssueBtn',false); }
+});
 
-async function returnIssue(issueId) {
-  if (!confirm('Mark this issue as returned?')) return;
+// ── RETURN ISSUE ───────────────────────────────────────────────────────────────
+async function doReturnIssue(issueId) {
+  if(!confirm('Mark this issue record as returned?')) return;
   try {
-    const res = await api('POST',`/api/issues/${issueId}/return`);
-    const idx = issues.findIndex(is=>is.id===issueId); if(idx>-1) issues[idx]=res.issue;
-    if (res.item) { const ii=items.findIndex(i=>i.id===res.item.id); if(ii>-1) items[ii]=res.item; }
-    notify('Returned successfully','success');
-    renderInventory(); renderIssued(); renderDashboard();
-  } catch(e) { notify(e.message,'error'); }
+    var res=await api('POST','/api/issues/'+issueId+'/return');
+    var idx=S.issues.findIndex(function(i){return i.id===issueId;});
+    if(idx>-1) S.issues[idx]={...S.issues[idx],status:'returned',returnedAt:res.issue.returnedAt};
+    if(res.item){
+      var ii=S.items.findIndex(function(i){return i.id===res.item.id;});
+      if(ii>-1) S.items[ii]=res.item;
+    }
+    notify('Items returned to stock','success');
+    await loadAll();
+    renderInventory(); renderIssued(); renderDashboard(); updateBadges(); renderComponents();
+  } catch(e){ notify(e.message,'error'); }
 }
 
-// ─── FAULT ────────────────────────────────────────────────────────────────────
-function updateFaultAvail() {
-  const id = document.getElementById('fault-item-sel').value;
-  const item = items.find(i=>i.id===id);
-  document.getElementById('fault-avail-info').textContent = item ? `${item.availableQty} unit(s) available` : '';
-  if (item) document.getElementById('fault-qty').max = item.availableQty;
-}
+// ── FAULT ACTIONS ──────────────────────────────────────────────────────────────
+document.getElementById('rptFaultBtn').addEventListener('click',function(){
+  document.getElementById('flt-item').innerHTML=S.items.map(function(i){
+    return '<option value="'+i.id+'">['+esc(i.serial)+'] '+esc(i.name)+' ('+((i.qtyAvailable||0))+' avail)</option>';
+  }).join('');
+  document.getElementById('flt-qty').value='1';
+  document.getElementById('flt-desc').value='';
+  document.getElementById('flt-by').value='';
+  document.getElementById('flt-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('flt-sev').value='medium';
+  document.getElementById('flt-avail-info').textContent='';
+  openModal('faultModal');
+});
 
-function openFaultModal() {
-  document.getElementById('fault-item-sel').innerHTML = items.map(i=>`<option value="${i.id}">[${esc(i.serial)}] ${esc(i.name)} (${i.availableQty} avail)</option>`).join('');
-  document.getElementById('fault-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('fault-qty').value = '1';
-  ['fault-desc','fault-reported-by'].forEach(id=>document.getElementById(id).value='');
-  updateFaultAvail();
-}
+document.getElementById('flt-item').addEventListener('change',function(){
+  var id=this.value, item=S.items.find(function(i){return i.id===id;});
+  if(item) document.getElementById('flt-avail-info').textContent='Available: '+(item.qtyAvailable||0)+' units';
+});
 
-async function saveFault() {
-  const itemId     = document.getElementById('fault-item-sel').value;
-  const desc       = document.getElementById('fault-desc').value.trim();
-  const reportedBy = document.getElementById('fault-reported-by').value.trim();
-  const date       = document.getElementById('fault-date').value;
-  const severity   = document.getElementById('fault-severity').value;
-  const qty        = parseInt(document.getElementById('fault-qty').value)||1;
-  if (!itemId||!desc) { notify('Item and description required','error'); return; }
+document.getElementById('saveFaultBtn').addEventListener('click',async function(){
+  var itemId=document.getElementById('flt-item').value;
+  var qty   =parseInt(document.getElementById('flt-qty').value)||1;
+  var desc  =document.getElementById('flt-desc').value.trim();
+  var by    =document.getElementById('flt-by').value.trim();
+  var date  =document.getElementById('flt-date').value;
+  var sev   =document.getElementById('flt-sev').value;
+  if(!itemId||!desc){notify('Item and description are required','error');return;}
+  setBtnLoad('saveFaultBtn',true);
   try {
-    const res = await api('POST','/api/faults',{ itemId, qty, desc, reportedBy, date, severity });
-    const idx = items.findIndex(i=>i.id===itemId); if(idx>-1) items[idx]=res.item;
-    faults.push(res.fault);
-    notify(`${qty} unit(s) marked faulty`,'warning');
+    var res=await api('POST','/api/faults',{itemId:itemId,qty:qty,desc:desc,reportedBy:by,date:date,severity:sev});
+    S.faults.push(res.fault);
+    var idx=S.items.findIndex(function(i){return i.id===itemId;});
+    if(idx>-1) S.items[idx]=res.item;
+    notify('Fault reported for '+qty+' unit(s)','warning');
     closeModal('faultModal');
-    renderFaulty(); renderInventory(); renderDashboard();
-  } catch(e) { notify(e.message,'error'); }
-}
+    await loadAll();
+    renderFaulty(); renderInventory(); renderDashboard(); updateBadges(); renderComponents();
+  } catch(e){ notify(e.message,'error'); }
+  finally { setBtnLoad('saveFaultBtn',false); }
+});
 
-async function fixFault(faultId) {
-  if (!confirm('Mark faulty units as fixed and return to available?')) return;
+async function doFixFault(faultId) {
   try {
-    const res = await api('POST',`/api/faults/${faultId}/fix`);
-    faults = faults.filter(f=>f.id!==faultId);
-    if (res.item) { const idx=items.findIndex(i=>i.id===res.item.id); if(idx>-1) items[idx]=res.item; }
-    notify('Units fixed and returned to available','success');
-    renderFaulty(); renderInventory(); renderDashboard();
-  } catch(e) { notify(e.message,'error'); }
+    var res=await api('POST','/api/faults/'+faultId+'/fix');
+    var fi=S.faults.findIndex(function(f){return f.id===faultId;});
+    if(fi>-1) S.faults[fi]=res.fault;
+    if(res.item){var ii=S.items.findIndex(function(i){return i.id===res.item.id;});if(ii>-1)S.items[ii]=res.item;}
+    notify('Units marked as fixed and returned to stock!','success');
+    await loadAll();
+    renderFaulty(); renderInventory(); renderDashboard(); updateBadges(); renderComponents();
+  } catch(e){ notify(e.message,'error'); }
 }
 
-async function maintFault(faultId) {
+async function doMaintFault(faultId) {
   try {
-    const res = await api('POST',`/api/faults/${faultId}/maintenance`);
-    faults = faults.filter(f=>f.id!==faultId);
-    if (res.item) { const idx=items.findIndex(i=>i.id===res.item.id); if(idx>-1) items[idx]=res.item; }
-    notify('Sent for maintenance','success');
-    renderFaulty(); renderInventory(); renderDashboard();
-  } catch(e) { notify(e.message,'error'); }
+    var res=await api('POST','/api/faults/'+faultId+'/maintenance');
+    var fi=S.faults.findIndex(function(f){return f.id===faultId;});
+    if(fi>-1) S.faults[fi]=res.fault;
+    if(res.item){var ii=S.items.findIndex(function(i){return i.id===res.item.id;});if(ii>-1)S.items[ii]=res.item;}
+    notify('Units sent for repair','success');
+    await loadAll();
+    renderFaulty(); renderInventory(); renderDashboard(); updateBadges(); renderComponents();
+  } catch(e){ notify(e.message,'error'); }
 }
 
-async function retireFault(faultId) {
-  if (!confirm('Retire these faulty units permanently?')) return;
+async function doFixMaint(itemId, maxQty) {
+  var qty=parseInt(prompt('How many units are repaired and ready to return to stock? (Max: '+maxQty+')')||'0');
+  if(!qty||qty<1||qty>+maxQty) { notify('Invalid quantity','error'); return; }
   try {
-    const res = await api('POST',`/api/faults/${faultId}/retire`);
-    faults = faults.filter(f=>f.id!==faultId);
-    if (res.item) { const idx=items.findIndex(i=>i.id===res.item.id); if(idx>-1) items[idx]=res.item; }
-    notify('Units retired','success');
-    renderFaulty(); renderInventory(); renderDashboard();
-  } catch(e) { notify(e.message,'error'); }
+    var updated=await api('POST','/api/items/'+itemId+'/fix-maintenance',{qty:qty});
+    var ii=S.items.findIndex(function(i){return i.id===itemId;});if(ii>-1)S.items[ii]=updated;
+    notify(qty+' unit(s) returned from maintenance to stock!','success');
+    await loadAll();
+    renderFaulty(); renderInventory(); renderDashboard(); updateBadges(); renderComponents();
+  } catch(e){ notify(e.message,'error'); }
 }
 
-// ─── CATEGORIES ───────────────────────────────────────────────────────────────
-function openAddCatModal() {
+// ── CATEGORIES CRUD ────────────────────────────────────────────────────────────
+document.getElementById('addCatBtn').addEventListener('click',function(){
   document.getElementById('catModalTitle').textContent='Add Category';
-  document.getElementById('cat-edit-id').value='';
+  document.getElementById('cat-id').value='';
   document.getElementById('cat-name').value='';
   document.getElementById('cat-desc').value='';
   openModal('catModal');
-}
-
-function editCategory(id) {
-  const cat = categories.find(c=>c.id===id);
-  if (!cat) return;
+});
+function openEditCat(id) {
+  var cat=S.categories.find(function(c){return c.id===id;}); if(!cat) return;
   document.getElementById('catModalTitle').textContent='Edit Category';
-  document.getElementById('cat-edit-id').value=cat.id;
+  document.getElementById('cat-id').value  =cat.id;
   document.getElementById('cat-name').value=cat.name;
   document.getElementById('cat-desc').value=cat.desc||'';
   openModal('catModal');
 }
-
-async function saveCategory() {
-  const name=document.getElementById('cat-name').value.trim();
-  const desc=document.getElementById('cat-desc').value.trim();
-  const editId=document.getElementById('cat-edit-id').value;
-  if (!name) { notify('Category name required','error'); return; }
+document.getElementById('saveCatBtn').addEventListener('click',async function(){
+  var name  =document.getElementById('cat-name').value.trim();
+  var desc  =document.getElementById('cat-desc').value.trim();
+  var editId=document.getElementById('cat-id').value;
+  if(!name){notify('Category name is required','error');return;}
+  setBtnLoad('saveCatBtn',true);
   try {
-    if (editId) {
-      const upd=await api('PUT',`/api/categories/${editId}`,{name,desc});
-      const idx=categories.findIndex(c=>c.id===editId); if(idx>-1) categories[idx]=upd;
-      notify('Category updated','success');
+    if(editId){
+      var updated=await api('PUT','/api/categories/'+editId,{name:name,desc:desc});
+      var idx=S.categories.findIndex(function(c){return c.id===editId;});
+      if(idx>-1) S.categories[idx]=updated;
+      notify('Category updated!','success');
     } else {
-      const created=await api('POST','/api/categories',{name,desc});
-      categories.push(created); notify('Category added','success');
+      var created=await api('POST','/api/categories',{name:name,desc:desc});
+      S.categories.push(created);
+      notify('Category added!','success');
     }
-    closeModal('catModal'); renderCategories(); updateCategoryFilter();
-  } catch(e) { notify(e.message,'error'); }
-}
-
-// ─── SETTINGS ─────────────────────────────────────────────────────────────────
-async function changePassword() {
-  const current=document.getElementById('pwd-current').value;
-  const newPwd=document.getElementById('pwd-new').value;
-  const confirm=document.getElementById('pwd-confirm').value;
-  if (!current||!newPwd||!confirm) { notify('All fields required','error'); return; }
-  if (newPwd!==confirm) { notify('New passwords do not match','error'); return; }
-  if (newPwd.length<6) { notify('Min 6 characters','error'); return; }
-  try {
-    await api('POST','/api/change-password',{currentPassword:current,newPassword:newPwd});
-    notify('Password changed!','success');
-    ['pwd-current','pwd-new','pwd-confirm'].forEach(id=>document.getElementById(id).value='');
-  } catch(e) { notify(e.message,'error'); }
-}
-
-async function doLogout() { await api('POST','/api/logout'); window.location.href='/login'; }
-
-// ─── MODALS ───────────────────────────────────────────────────────────────────
-function openModal(id) {
-  if (id==='faultModal') { openFaultModal(); }
-  document.getElementById(id).classList.add('open');
-}
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(overlay=>{
-  overlay.addEventListener('click',e=>{ if(e.target===overlay) closeModal(overlay.id); });
+    closeModal('catModal');
+    renderCategories(); updateCatFilter(); updateCompCatFilter(); updateIssCatFilter();
+  } catch(e){ notify(e.message,'error'); }
+  finally { setBtnLoad('saveCatBtn',false); }
 });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open')); });
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
-function getCatName(id) { return (categories.find(c=>c.id===id)||{}).name||'Unknown'; }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function highlight(text,q) {
-  if (!q) return esc(text);
-  const re=new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+// ── DELETE ─────────────────────────────────────────────────────────────────────
+function openDelConfirm(id,type,name) {
+  S.pendingDel=id; S.pendingDelType=type;
+  document.getElementById('del-name').textContent=name||id;
+  openModal('delModal');
+}
+document.getElementById('confirmDelBtn').addEventListener('click',async function(){
+  if(!S.pendingDel) return;
+  setBtnLoad('confirmDelBtn',true);
+  try {
+    if(S.pendingDelType==='item'){
+      await api('DELETE','/api/items/'+S.pendingDel);
+      S.items  =S.items.filter(function(i){return i.id!==S.pendingDel;});
+      S.issues =S.issues.filter(function(i){return i.itemId!==S.pendingDel;});
+      S.faults =S.faults.filter(function(f){return f.itemId!==S.pendingDel;});
+      notify('Item deleted','success');
+      renderInventory(); renderIssued(); renderFaulty(); renderDashboard(); updateBadges(); renderComponents();
+    } else {
+      await api('DELETE','/api/categories/'+S.pendingDel);
+      S.categories=S.categories.filter(function(c){return c.id!==S.pendingDel;});
+      notify('Category deleted','success');
+      renderCategories(); updateCatFilter();
+    }
+    closeModal('delModal'); S.pendingDel=null;
+  } catch(e){ notify(e.message,'error'); }
+  finally { setBtnLoad('confirmDelBtn',false); }
+});
+
+// ── LOGS ───────────────────────────────────────────────────────────────────────
+document.getElementById('clearLogsBtn').addEventListener('click',async function(){
+  if(!confirm('Clear all activity logs? This cannot be undone.')) return;
+  try { await api('DELETE','/api/logs'); S.logs=[]; renderLogs(); notify('Logs cleared','success'); }
+  catch(e){ notify(e.message,'error'); }
+});
+
+// ── SETTINGS — password change is admin-only (enforced server-side too) ────────
+document.getElementById('changePwdBtn').addEventListener('click',async function(){
+  // Extra client-side guard — server enforces this via requireAdmin as well
+  if (S.role !== 'admin') { notify('Password changes are not available for student accounts.','error'); return; }
+  var cur=document.getElementById('pwd-cur').value;
+  var nw =document.getElementById('pwd-new').value;
+  var cfm=document.getElementById('pwd-cfm').value;
+  if(!cur||!nw||!cfm){notify('All fields are required','error');return;}
+  if(nw!==cfm){notify('New passwords do not match','error');return;}
+  if(nw.length<6){notify('Password must be at least 6 characters','error');return;}
+  setBtnLoad('changePwdBtn',true);
+  try {
+    await api('POST','/api/change-password',{currentPassword:cur,newPassword:nw});
+    notify('Password changed successfully!','success');
+    document.getElementById('pwd-cur').value='';
+    document.getElementById('pwd-new').value='';
+    document.getElementById('pwd-cfm').value='';
+  } catch(e){ notify(e.message,'error'); }
+  finally { setBtnLoad('changePwdBtn',false); }
+});
+
+// ── EXPORT CSV ─────────────────────────────────────────────────────────────────
+document.getElementById('exportBtn').addEventListener('click',function(){
+  var headers=['Serial','Name','Category','Total Qty','Available','Issued','Faulty','Maintenance','Shelf','Notes'];
+  var rows=S.items.map(function(i){
+    return [i.serial,i.name,catName(i.catId),i.totalQty,i.qtyAvailable||0,i.qtyIssued||0,i.qtyFaulty||0,i.qtyMaintenance||0,i.location||'',i.notes||'']
+      .map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');
+  });
+  var csv=[headers.join(',')].concat(rows).join('\n');
+  var a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='lab-inventory-'+new Date().toISOString().split('T')[0]+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  notify('CSV exported!','success');
+});
+
+// ── LOGOUT ─────────────────────────────────────────────────────────────────────
+document.getElementById('logoutBtn').addEventListener('click',async function(){
+  try { await api('POST','/api/logout'); } catch(e){}
+  window.location.href='/login';
+});
+
+// ── TOP ADD ────────────────────────────────────────────────────────────────────
+document.getElementById('topAddBtn').addEventListener('click',openAddItem);
+document.getElementById('invAddBtn').addEventListener('click',openAddItem);
+
+// ── MODALS ─────────────────────────────────────────────────────────────────────
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(function(overlay){
+  overlay.addEventListener('click',function(e){ if(e.target===overlay) closeModal(overlay.id); });
+});
+document.querySelectorAll('[data-close]').forEach(function(btn){
+  btn.addEventListener('click',function(){ closeModal(btn.dataset.close); });
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(function(m){ m.classList.remove('open'); });
+});
+
+// ── SIDEBAR ────────────────────────────────────────────────────────────────────
+document.getElementById('burgerBtn').addEventListener('click',function(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sbOverlay').classList.toggle('show');
+});
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').classList.remove('show');
+}
+document.getElementById('sbOverlay').addEventListener('click',closeSidebar);
+
+// ── PAGINATION ─────────────────────────────────────────────────────────────────
+function renderPg(containerId,current,total,onPage){
+  var el=document.getElementById(containerId);
+  if(total<=1){el.innerHTML='';return;}
+  var btns='',start=Math.max(1,current-2),end=Math.min(total,current+2);
+  if(start>1) btns+='<button class="page-btn" data-p="1">1</button>'+(start>2?'<span style="padding:0 3px;color:var(--text3)">…</span>':'');
+  for(var p=start;p<=end;p++) btns+='<button class="page-btn'+(p===current?' active':'')+'" data-p="'+p+'">'+p+'</button>';
+  if(end<total) btns+=(end<total-1?'<span style="padding:0 3px;color:var(--text3)">…</span>':'')+'<button class="page-btn" data-p="'+total+'">'+total+'</button>';
+  el.innerHTML='<span class="page-info">Page '+current+' of '+total+'</span><div class="page-btns">'+btns+'</div>';
+  el.querySelectorAll('[data-p]').forEach(function(b){ b.addEventListener('click',function(){ onPage(+b.dataset.p); }); });
+}
+
+// ── NOTIFICATIONS ──────────────────────────────────────────────────────────────
+function notify(msg,type){
+  var bar=document.getElementById('notifBar');
+  var n=document.createElement('div');
+  n.className='notif'+(type?' '+type:'');
+  n.innerHTML='<span>'+esc(msg)+'</span><button class="notif-x" aria-label="Dismiss">×</button>';
+  n.querySelector('.notif-x').addEventListener('click',function(){n.remove();});
+  bar.appendChild(n);
+  setTimeout(function(){
+    n.style.animation='slideOut .3s forwards';
+    setTimeout(function(){n.remove();},300);
+  },4500);
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function hi(text,q){
+  if(!q) return esc(text);
+  var re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
   return esc(text).replace(re,'<mark>$1</mark>');
 }
-
-function renderPagination(containerId,current,total,onPage) {
-  const el=document.getElementById(containerId);
-  if (total<=1) { el.innerHTML=''; return; }
-  let btns='';
-  for (let i=Math.max(1,current-2);i<=Math.min(total,current+2);i++) btns+=`<button class="page-btn${i===current?' active':''}" data-p="${i}">${i}</button>`;
-  el.innerHTML=`<span class="page-info">Page ${current} of ${total}</span><div class="page-btns">${btns}</div>`;
-  el.querySelectorAll('[data-p]').forEach(btn=>btn.addEventListener('click',()=>onPage(+btn.dataset.p)));
+function catName(id){ var c=S.categories.find(function(x){return x.id===id;}); return c?c.name:'Unknown'; }
+function isOverdue(iss){
+  if(!iss.returnDate) return false;
+  return new Date(iss.returnDate) < new Date(new Date().toDateString());
+}
+function emptyState(msg){
+  return '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg><p>'+esc(msg)+'</p></div>';
+}
+function setBtnLoad(id,on){
+  var el=document.getElementById(id); if(el){el.disabled=on;}
 }
 
-function notify(msg,type='') {
-  const bar=document.getElementById('notif-bar');
-  const n=document.createElement('div');
-  n.className=`notif ${type}`;
-  n.innerHTML=`<span>${esc(msg)}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:inherit;cursor:pointer;margin-left:8px;font-size:1.1rem;line-height:1">×</button>`;
-  bar.appendChild(n);
-  setTimeout(()=>{ n.style.animation='slideOut .3s forwards'; setTimeout(()=>n.remove(),300); },4000);
-}
-
-function showLoading(v) { document.getElementById('loadingOverlay').style.display=v?'flex':'none'; }
-function setBtnLoading(id,v) { const el=document.getElementById(id); if(el){ el.disabled=v; el.textContent=v?'Saving…':'Save Item'; } }
-function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
-function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); }
-
-// ─── EXPORT ───────────────────────────────────────────────────────────────────
-function exportCSV() {
-  const hdr=['Serial','Name','Category','Total','Available','Issued','Faulty','Maintenance','Retired','Location','Notes'];
-  const rows=items.map(i=>[i.serial,i.name,getCatName(i.catId),i.totalQty,i.availableQty,issuedQty(i),i.faultyQty||0,i.maintenanceQty||0,i.retiredQty||0,i.location||'',i.notes||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
-  const csv=[hdr.join(','),...rows].join('\n');
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download=`lab-inventory-${new Date().toISOString().split('T')[0]}.csv`;
-  a.click(); notify('CSV exported!','success');
-}
-
-// ─── START ────────────────────────────────────────────────────────────────────
+// ── START ──────────────────────────────────────────────────────────────────────
 init();
 </script>
 </body>
