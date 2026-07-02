@@ -407,6 +407,7 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
         <div class="table-header"><span class="table-title">Inventory Items<span class="table-count" id="inv-count"></span></span></div>
         <div class="table-scroll"><table>
           <thead><tr>
+            <th>#</th>
             <th data-col="serial">Serial ↕</th>
             <th data-col="name">Item Name ↕</th>
             <th data-col="catId">Category ↕</th>
@@ -438,6 +439,7 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
             <th data-col-iss="qty">Qty Issued ↕</th>
             <th>Issued To</th>
             <th>Student ID</th>
+            <th>Issued By</th>
             <th data-col-iss="issueDate">Issue Date ↕</th>
             <th data-col-iss="returnDate">Return By ↕</th>
             <th>Status</th>
@@ -533,7 +535,7 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
         <div class="form-group"><label>Item Name *</label><input class="form-control" id="f-name" placeholder="e.g. Arduino Uno"></div>
         <div class="form-group"><label>Serial Number *</label><input class="form-control" id="f-serial" placeholder="e.g. ARD-001"></div>
         <div class="form-group"><label>Category *</label><select class="form-control" id="f-cat"></select></div>
-        <div class="form-group"><label>Total Quantity</label><input class="form-control" id="f-qty" type="number" min="1" value="1"></div>
+        <div class="form-group"><label>Total Quantity</label><input class="form-control" id="f-qty" type="number" min="0" value="1"></div>
         <div class="form-group"><label>Shelf / Location</label><input class="form-control" id="f-loc" placeholder="e.g. Shelf A-3"></div>
         <div class="form-group full"><label>Notes / Description</label><textarea class="form-control" id="f-notes" placeholder="Any additional notes…"></textarea></div>
       </div>
@@ -571,6 +573,7 @@ mark{background:#fde68a;color:inherit;border-radius:2px;padding:0 1px}
         <div class="form-group"><label>Qty to Issue *</label><input class="form-control" id="iss-qty" type="number" min="1" value="1"></div>
         <div class="form-group"><label>Student Name *</label><input class="form-control" id="iss-name" placeholder="Full name"></div>
         <div class="form-group"><label>Student ID / Roll No. *</label><input class="form-control" id="iss-sid" placeholder="e.g. 22CS045"></div>
+        <div class="form-group"><label>Issued By *</label><input class="form-control" id="iss-by" placeholder="Staff name"></div>
         <div class="form-group"><label>Issue Date *</label><input class="form-control" id="iss-idate" type="date"></div>
         <div class="form-group"><label>Return By (optional)</label><input class="form-control" id="iss-rdate" type="date"></div>
         <div class="form-group full"><label>Purpose / Notes</label><textarea class="form-control" id="iss-notes" placeholder="Purpose of issuing…"></textarea></div>
@@ -789,6 +792,18 @@ function renderDashboard() {
 }
 
 // ── INVENTORY ──────────────────────────────────────────────────────────────────
+function naturalCompare(a,b){
+  a=String(a); b=String(b);
+  var ax=[], bx=[];
+  a.replace(/(\d+)|(\D+)/g, function(_,$1,$2){ ax.push([$1||Infinity, $2||'']); });
+  b.replace(/(\d+)|(\D+)/g, function(_,$1,$2){ bx.push([$1||Infinity, $2||'']); });
+  while(ax.length && bx.length){
+    var an=ax.shift(), bn=bx.shift();
+    var nn=(an[0]-bn[0]) || an[1].localeCompare(bn[1]);
+    if(nn) return nn;
+  }
+  return ax.length-bx.length;
+}
 function renderInventory() {
   var q   = (document.getElementById('inv-q').value||'').toLowerCase();
   var cat = document.getElementById('inv-cat').value;
@@ -799,8 +814,9 @@ function renderInventory() {
   });
 
   filtered.sort(function(a,b){
-    var av = S.sortCol==='totalQty' ? +a.totalQty : (a[S.sortCol]||'');
-    var bv = S.sortCol==='totalQty' ? +b.totalQty : (b[S.sortCol]||'');
+    if (S.sortCol==='totalQty') { return (+a.totalQty-+b.totalQty)*S.sortDir; }
+    if (S.sortCol==='serial')   { return naturalCompare(a.serial||'', b.serial||'')*S.sortDir; }
+    var av = a[S.sortCol]||'', bv = b[S.sortCol]||'';
     return (av>bv?1:av<bv?-1:0)*S.sortDir;
   });
 
@@ -809,7 +825,7 @@ function renderInventory() {
   var slice = filtered.slice((S.invPage-1)*PAGE, S.invPage*PAGE);
 
   document.getElementById('inv-count').textContent = ' ('+total+')';
-  document.getElementById('inv-tbody').innerHTML = slice.length ? slice.map(function(i){
+  document.getElementById('inv-tbody').innerHTML = slice.length ? slice.map(function(i,idx){
     var avail  = i.qtyAvailable||0;
     var issued = i.qtyIssued||0;
     var faulty = i.qtyFaulty||0;
@@ -822,6 +838,7 @@ function renderInventory() {
     if (maint>0)  pcts.push('<span class="qty-pill maint">'+maint+' repair</span>');
     pcts.push('<span class="qty-pill total">'+total+' total</span>');
     return '<tr>'+
+      '<td class="td-mono">'+((S.invPage-1)*PAGE+idx+1)+'</td>'+
       '<td class="td-mono">'+esc(i.serial)+'</td>'+
       '<td><strong>'+hi(i.name,q)+'</strong>'+(i.notes?'<br><span class="td-muted">'+esc(i.notes.slice(0,42))+(i.notes.length>42?'…':'')+'</span>':'')+'</td>'+
       '<td><span class="cat-chip">'+esc(catName(i.catId))+'</span></td>'+
@@ -832,7 +849,7 @@ function renderInventory() {
         '<button class="icon-btn edit" title="Edit" data-edit="'+i.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>'+
         '<button class="icon-btn del" title="Delete" data-del="'+i.id+'" data-del-type="item" data-del-name="'+esc(i.name)+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>'+
       '</div></td></tr>';
-  }).join('') : '<tr><td colspan="6">'+emptyState('No items found')+'</td></tr>';
+  }).join('') : '<tr><td colspan="7">'+emptyState('No items found')+'</td></tr>';
   renderPg('inv-pg',S.invPage,pages,function(p){ S.invPage=p; renderInventory(); });
 }
 
@@ -956,6 +973,7 @@ function renderIssued() {
       '<td class="td-mono" style="font-weight:700;color:var(--accent)">'+iss.qty+'</td>'+
       '<td><strong>'+esc(iss.issuedTo||'—')+'</strong></td>'+
       '<td class="td-mono">'+esc(iss.studentId||'—')+'</td>'+
+      '<td>'+esc(iss.issuedBy||'—')+'</td>'+
       '<td class="td-mono">'+(iss.issueDate||'—')+'</td>'+
       '<td class="td-mono" style="'+(od&&iss.status==='active'?'color:var(--danger);font-weight:600':'')+'">'+
         (iss.returnDate||'—')+(od&&iss.status==='active'?' ⚠':'')+
@@ -965,7 +983,7 @@ function renderIssued() {
         (iss.status==='active'?'<button class="icon-btn ret-btn" title="Mark as returned" data-return-iss="'+iss.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg></button>':'')+
       '</div></td>'+
     '</tr>';
-  }).join('') : '<tr><td colspan="11">'+emptyState('No issue records found')+'</td></tr>';
+  }).join('') : '<tr><td colspan="12">'+emptyState('No issue records found')+'</td></tr>';
   renderPg('iss-pg',S.issPage,pages,function(p){ S.issPage=p; renderIssued(); });
 }
 
@@ -1142,7 +1160,7 @@ document.getElementById('saveItemBtn').addEventListener('click',async function()
   if(!valid){notify('Fill in the required fields (*)','error');return;}
   var body={
     name:name, serial:serial, catId:catId,
-    totalQty:+document.getElementById('f-qty').value||1,
+    totalQty:(function(){var v=parseInt(document.getElementById('f-qty').value);return Number.isFinite(v)&&v>=0?v:1;})(),
     location:document.getElementById('f-loc').value.trim(),
     notes:document.getElementById('f-notes').value.trim()
   };
@@ -1184,6 +1202,7 @@ function openIssueModal(itemId) {
   document.getElementById('iss-qty').max     =av;
   document.getElementById('iss-name').value  ='';
   document.getElementById('iss-sid').value   ='';
+  document.getElementById('iss-by').value    ='';
   document.getElementById('iss-idate').value =new Date().toISOString().split('T')[0];
   document.getElementById('iss-rdate').value ='';
   document.getElementById('iss-notes').value ='';
@@ -1195,14 +1214,15 @@ document.getElementById('confirmIssueBtn').addEventListener('click',async functi
   var qty    =parseInt(document.getElementById('iss-qty').value)||1;
   var name   =document.getElementById('iss-name').value.trim();
   var sid    =document.getElementById('iss-sid').value.trim();
+  var by     =document.getElementById('iss-by').value.trim();
   var idate  =document.getElementById('iss-idate').value;
   var rdate  =document.getElementById('iss-rdate').value;
   var notes  =document.getElementById('iss-notes').value.trim();
-  if(!name||!sid||!idate){notify('Student name, ID and issue date are required','error');return;}
+  if(!name||!sid||!by||!idate){notify('Student name, ID, Issued By and issue date are required','error');return;}
   if(qty<1){notify('Quantity must be at least 1','error');return;}
   setBtnLoad('confirmIssueBtn',true);
   try {
-    var res=await api('POST','/api/items/'+itemId+'/issue',{issuedTo:name,studentId:sid,issueDate:idate,returnDate:rdate,notes:notes,qty:qty});
+    var res=await api('POST','/api/items/'+itemId+'/issue',{issuedTo:name,issuedBy:by,studentId:sid,issueDate:idate,returnDate:rdate,notes:notes,qty:qty});
     var idx=S.items.findIndex(function(i){return i.id===itemId;});
     if(idx>-1) S.items[idx]=res.item;
     S.issues.unshift({...res.issue, itemName:S.items[idx]?S.items[idx].name:'', itemSerial:S.items[idx]?S.items[idx].serial:'', catId:S.items[idx]?S.items[idx].catId:''});
