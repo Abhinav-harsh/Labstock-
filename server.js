@@ -672,4 +672,3 @@ if (require.main === module) {
 
 // Required for Vercel serverless
 module.exports = app;
-    
