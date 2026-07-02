@@ -13,7 +13,6 @@ const helmet     = require('helmet');
 const rateLimit  = require('express-rate-limit');
 const compression= require('compression');
 const path       = require('path');
-const nodemailer = require('nodemailer');
 
 // ─── DB: MongoDB Atlas via Mongoose ──────────────────────────────────────────
 // Set MONGODB_URI in Vercel environment variables (Project → Settings → Env Vars)
@@ -55,10 +54,6 @@ const FaultSchema = new mongoose.Schema({
 const LogSchema = new mongoose.Schema({
   id: String, time: String, action: String, item: String, user: String, details: String
 });
-const OtpSchema = new mongoose.Schema({
-  username: String, otp: String, expiresAt: Date,
-  used: { type: Boolean, default: false }, createdAt: { type: Date, default: Date.now }
-});
 
 const User     = mongoose.models.User     || mongoose.model('User',     UserSchema);
 const Item     = mongoose.models.Item     || mongoose.model('Item',     ItemSchema);
@@ -66,7 +61,6 @@ const Issue    = mongoose.models.Issue    || mongoose.model('Issue',    IssueSch
 const Category = mongoose.models.Category || mongoose.model('Category', CategorySchema);
 const Fault    = mongoose.models.Fault    || mongoose.model('Fault',    FaultSchema);
 const Log      = mongoose.models.Log      || mongoose.model('Log',      LogSchema);
-const Otp      = mongoose.models.Otp      || mongoose.model('Otp',      OtpSchema);
 
 // ─── DB HELPERS ──────────────────────────────────────────────────────────────
 function uid() {
@@ -77,34 +71,6 @@ async function addLog(action, item, user, details) {
   const log = new Log({ id: uid(), time: new Date().toISOString(), action: String(action), item: String(item), user: String(user), details: String(details || '') });
   await log.save();
   await Log.deleteMany({ _id: { $nin: (await Log.find().sort({ time: -1 }).limit(1000).select('_id')).map(l => l._id) } });
-}
-
-// ─── PASSWORD RECOVERY (admin only) ───────────────────────────────────────────
-// All admin OTP emails go to this fixed recovery address, regardless of which
-// admin username requested the reset.
-const RECOVERY_EMAIL = 'mi.inventory@iitbbs.ac.in';
-
-function getMailTransporter() {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) return null;
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-  });
-}
-
-async function sendOtpEmail(otp, username) {
-  const transporter = getMailTransporter();
-  if (!transporter) throw new Error('Email service is not configured. Set SMTP_HOST, SMTP_USER and SMTP_PASS in environment variables.');
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to: RECOVERY_EMAIL,
-    subject: 'LabStock — Admin Password Reset OTP',
-    html: '<p>A password reset was requested for admin account <b>' + username + '</b>.</p>' +
-          '<p>Your one-time code is: <b style="font-size:22px;letter-spacing:3px">' + otp + '</b></p>' +
-          '<p style="color:#64748b;font-size:.85rem">This code expires in 10 minutes. If you did not request this, you can safely ignore this email.</p>'
-  });
 }
 
 async function ensureDefaultData() {
@@ -244,12 +210,6 @@ const loginLimiter = rateLimit({
   standardHeaders: true, legacyHeaders: false
 });
 
-const forgotLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, max: 5,
-  message: { error: 'Too many password reset requests. Please wait 15 minutes.' },
-  standardHeaders: true, legacyHeaders: false
-});
-
 // ─── DB MIDDLEWARE — connect before every request ─────────────────────────────
 app.use(async (req, res, next) => {
   try {
@@ -314,42 +274,6 @@ app.post('/api/logout', (req, res) => {
 app.get('/api/session', (req, res) => {
   if (!req.session || !req.session.userId) return res.json({ loggedIn: false });
   res.json({ loggedIn: true, name: req.session.name, role: req.session.role, username: req.session.username });
-});
-
-// ─── FORGOT PASSWORD (admin only, OTP emailed to fixed recovery address) ─────
-app.post('/api/forgot-password', forgotLimiter, async (req, res) => {
-  try {
-    const { username } = req.body;
-    if (!username || !String(username).trim()) return res.status(400).json({ error: 'Username is required.' });
-    const user = await User.findOne({ username: { $regex: new RegExp(`^${String(username).trim()}$`, 'i') }, role: 'admin' });
-    if (!user) return res.status(404).json({ error: 'No admin account found with that username.' });
-    const otp = String(Math.floor(100000 + Math.random() * 900000));
-    await Otp.deleteMany({ username: user.username });
-    await new Otp({ username: user.username, otp, expiresAt: new Date(Date.now() + 10 * 60 * 1000) }).save();
-    await sendOtpEmail(otp, user.username);
-    await addLog('Password Reset Requested', '—', user.name, `OTP sent to ${RECOVERY_EMAIL}`);
-    res.json({ success: true, message: `OTP sent to ${RECOVERY_EMAIL}` });
-  } catch (e) { res.status(500).json({ error: e.message || 'Server error.' }); }
-});
-
-app.post('/api/reset-password', forgotLimiter, async (req, res) => {
-  try {
-    const { username, otp, newPassword } = req.body;
-    if (!username || !otp || !newPassword) return res.status(400).json({ error: 'Username, OTP and new password are required.' });
-    if (String(newPassword).length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters.' });
-    const rec = await Otp.findOne({ username: { $regex: new RegExp(`^${String(username).trim()}$`, 'i') }, used: false }).sort({ createdAt: -1 });
-    if (!rec) return res.status(400).json({ error: 'No OTP request found. Please request a new OTP.' });
-    if (rec.expiresAt < new Date()) return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
-    if (String(rec.otp) !== String(otp).trim()) return res.status(400).json({ error: 'Incorrect OTP.' });
-    const user = await User.findOne({ username: { $regex: new RegExp(`^${String(username).trim()}$`, 'i') }, role: 'admin' });
-    if (!user) return res.status(404).json({ error: 'Admin account not found.' });
-    user.passwordHash = await bcrypt.hash(String(newPassword), 10);
-    await user.save();
-    rec.used = true;
-    await rec.save();
-    await addLog('Password Reset', '—', user.name, 'Password reset via email OTP');
-    res.json({ success: true });
-  } catch (e) { res.status(500).json({ error: 'Server error: ' + e.message }); }
 });
 
 app.post('/api/change-password', requireAuth, async (req, res) => {
