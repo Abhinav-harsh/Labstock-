@@ -53,6 +53,13 @@ h1{font-size:1.08rem;font-weight:700;color:#0f172a;margin-bottom:3px}
 }
 .err-box.show{display:flex}
 .err-box svg{flex-shrink:0;width:15px;height:15px}
+.ok-box{
+  background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;
+  font-size:.82rem;padding:10px 13px;border-radius:9px;
+  margin-bottom:16px;display:none;align-items:center;gap:8px;line-height:1.4;
+}
+.ok-box.show{display:flex}
+.ok-box svg{flex-shrink:0;width:15px;height:15px}
 /* Form */
 .grp{margin-bottom:15px}
 label{display:block;font-size:.76rem;font-weight:600;color:#475569;margin-bottom:5px;letter-spacing:.01em}
@@ -114,6 +121,7 @@ input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
     </div>
     <span class="logo-text">Lab<span>Stock</span></span>
   </div>
+  <div id="loginView">
   <div class="head">
     <h1>Welcome back</h1>
     <p class="sub">Sign in to access the lab inventory system</p>
@@ -155,6 +163,10 @@ input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
     </div>
   </div>
 
+  <div style="text-align:right;margin-top:-8px;margin-bottom:14px" id="forgotWrap">
+    <a href="#" id="forgotLink" style="font-size:.78rem;color:#2563eb;text-decoration:none;font-weight:600">Forgot password?</a>
+  </div>
+
   <div class="attempts-warn" id="attWarn"></div>
 
   <button class="btn-login" id="loginBtn" type="button">
@@ -164,6 +176,75 @@ input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
 
   <!-- Hint box: hidden for admin (default), shown only for student -->
   <p class="hint" id="hintBox" style="display:none"></p>
+  </div><!-- /loginView -->
+
+  <!-- FORGOT PASSWORD VIEW -->
+  <div id="forgotView" style="display:none">
+    <div class="head">
+      <h1>Reset admin password</h1>
+      <p class="sub">A one-time code will be emailed to the registered recovery address</p>
+    </div>
+
+    <div class="err-box" id="fpErrBox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="fpErrTxt"></span>
+    </div>
+    <div class="ok-box" id="fpOkBox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span id="fpOkTxt"></span>
+    </div>
+
+    <!-- STEP 1: request OTP -->
+    <div id="fpStep1">
+      <div class="grp">
+        <label for="fp-usr">Admin Username</label>
+        <div class="inp-wrap">
+          <div class="inp-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <input type="text" id="fp-usr" placeholder="admin" autocomplete="username" spellcheck="false">
+        </div>
+      </div>
+      <button class="btn-login" id="sendOtpBtn" type="button">
+        <div class="spin"></div>
+        <span class="btn-txt">Send OTP</span>
+      </button>
+    </div>
+
+    <!-- STEP 2: enter OTP + new password -->
+    <div id="fpStep2" style="display:none">
+      <div class="grp">
+        <label for="fp-otp">OTP Code</label>
+        <div class="inp-wrap">
+          <div class="inp-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <input type="text" id="fp-otp" placeholder="6-digit code" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+        </div>
+      </div>
+      <div class="grp">
+        <label for="fp-newpwd">New Password</label>
+        <div class="inp-wrap">
+          <div class="inp-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <input type="password" id="fp-newpwd" placeholder="Min 6 characters" autocomplete="new-password">
+        </div>
+      </div>
+      <div class="grp">
+        <label for="fp-newpwd2">Confirm New Password</label>
+        <div class="inp-wrap">
+          <div class="inp-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <input type="password" id="fp-newpwd2" placeholder="Re-enter new password" autocomplete="new-password">
+        </div>
+      </div>
+      <button class="btn-login" id="resetPwdBtn" type="button">
+        <div class="spin"></div>
+        <span class="btn-txt">Reset Password</span>
+      </button>
+      <p style="text-align:center;margin-top:14px">
+        <a href="#" id="resendOtpLink" style="font-size:.78rem;color:#2563eb;text-decoration:none;font-weight:600">Resend OTP</a>
+      </p>
+    </div>
+
+    <p style="text-align:center;margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9">
+      <a href="#" id="backToLoginLink" style="font-size:.8rem;color:#64748b;text-decoration:none;font-weight:600">← Back to Sign In</a>
+    </p>
+  </div><!-- /forgotView -->
 </div>
 
 <script>
@@ -177,6 +258,7 @@ input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
   var errTxt  = document.getElementById('errTxt');
   var attWarn = document.getElementById('attWarn');
   var hintBox = document.getElementById('hintBox');
+  var forgotWrap = document.getElementById('forgotWrap');
   var failCount = 0;
   var selectedRole = 'admin';
 
@@ -200,6 +282,8 @@ input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
         hintBox.innerHTML = '';
         hintBox.style.display = 'none';
       }
+
+      forgotWrap.style.display = selectedRole === 'admin' ? 'block' : 'none';
 
       clearErr();
       usrEl.focus();
@@ -286,6 +370,114 @@ input.invalid:focus{box-shadow:0 0 0 3px rgba(239,68,68,.12)}
   btn.addEventListener('click', doLogin);
   usrEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') pwdEl.focus(); });
   pwdEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+
+  // ── FORGOT PASSWORD (admin only) ─────────────────────────────────────────
+  var loginView   = document.getElementById('loginView');
+  var forgotView  = document.getElementById('forgotView');
+  var forgotLink  = document.getElementById('forgotLink');
+  var backToLoginLink = document.getElementById('backToLoginLink');
+  var fpErrBox = document.getElementById('fpErrBox');
+  var fpErrTxt = document.getElementById('fpErrTxt');
+  var fpOkBox  = document.getElementById('fpOkBox');
+  var fpOkTxt  = document.getElementById('fpOkTxt');
+  var fpStep1  = document.getElementById('fpStep1');
+  var fpStep2  = document.getElementById('fpStep2');
+  var fpUsr    = document.getElementById('fp-usr');
+  var fpOtp    = document.getElementById('fp-otp');
+  var fpNewPwd = document.getElementById('fp-newpwd');
+  var fpNewPwd2= document.getElementById('fp-newpwd2');
+  var sendOtpBtn   = document.getElementById('sendOtpBtn');
+  var resetPwdBtn  = document.getElementById('resetPwdBtn');
+  var resendOtpLink= document.getElementById('resendOtpLink');
+
+  function fpShowErr(msg) { fpErrTxt.textContent = msg; fpErrBox.classList.add('show'); fpOkBox.classList.remove('show'); }
+  function fpClearMsgs()  { fpErrBox.classList.remove('show'); fpOkBox.classList.remove('show'); }
+  function fpShowOk(msg)  { fpOkTxt.textContent = msg; fpOkBox.classList.add('show'); fpErrBox.classList.remove('show'); }
+  function setFpLoading(b, on) { b.disabled = on; b.classList.toggle('loading', on); }
+
+  forgotLink.addEventListener('click', function (e) {
+    e.preventDefault();
+    loginView.style.display = 'none';
+    forgotView.style.display = 'block';
+    fpStep1.style.display = 'block';
+    fpStep2.style.display = 'none';
+    fpClearMsgs();
+    fpUsr.value = usrEl.value.trim();
+    fpOtp.value = ''; fpNewPwd.value = ''; fpNewPwd2.value = '';
+    fpUsr.focus();
+  });
+
+  backToLoginLink.addEventListener('click', function (e) {
+    e.preventDefault();
+    forgotView.style.display = 'none';
+    loginView.style.display = 'block';
+    clearErr();
+    usrEl.focus();
+  });
+
+  async function sendOtp() {
+    fpClearMsgs();
+    var username = fpUsr.value.trim();
+    if (!username) { fpShowErr('Please enter the admin username.'); return; }
+    setFpLoading(sendOtpBtn, true);
+    try {
+      var res = await fetch('/api/forgot-password', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username })
+      });
+      var data = await res.json();
+      if (!res.ok || !data.success) { fpShowErr(data.error || 'Could not send OTP.'); return; }
+      fpShowOk(data.message || 'OTP sent.');
+      fpStep1.style.display = 'none';
+      fpStep2.style.display = 'block';
+      fpOtp.focus();
+    } catch (e) {
+      fpShowErr('Cannot reach server. Make sure it is running.');
+    } finally {
+      setFpLoading(sendOtpBtn, false);
+    }
+  }
+
+  sendOtpBtn.addEventListener('click', sendOtp);
+  resendOtpLink.addEventListener('click', function (e) { e.preventDefault(); sendOtp(); });
+
+  resetPwdBtn.addEventListener('click', async function () {
+    fpClearMsgs();
+    var username = fpUsr.value.trim();
+    var otp = fpOtp.value.trim();
+    var np  = fpNewPwd.value;
+    var np2 = fpNewPwd2.value;
+    if (!otp) { fpShowErr('Please enter the OTP sent to the recovery email.'); return; }
+    if (!np || np.length < 6) { fpShowErr('New password must be at least 6 characters.'); return; }
+    if (np !== np2) { fpShowErr('Passwords do not match.'); return; }
+    setFpLoading(resetPwdBtn, true);
+    try {
+      var res = await fetch('/api/reset-password', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, otp: otp, newPassword: np })
+      });
+      var data = await res.json();
+      if (!res.ok || !data.success) { fpShowErr(data.error || 'Could not reset password.'); return; }
+      fpShowOk('Password reset! You can now sign in with your new password.');
+      fpStep2.style.display = 'none';
+      setTimeout(function () {
+        forgotView.style.display = 'none';
+        loginView.style.display = 'block';
+        usrEl.value = username;
+        pwdEl.value = '';
+        clearErr();
+        usrEl.focus();
+      }, 1800);
+    } catch (e) {
+      fpShowErr('Cannot reach server. Make sure it is running.');
+    } finally {
+      setFpLoading(resetPwdBtn, false);
+    }
+  });
 
   // Auto-focus
   usrEl.focus();
