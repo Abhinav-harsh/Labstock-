@@ -40,7 +40,7 @@ const ItemSchema = new mongoose.Schema({
   location: String, notes: String, createdAt: String
 });
 const IssueSchema = new mongoose.Schema({
-  id: String, itemId: String, qty: Number, issuedTo: String, studentId: String,
+  id: String, itemId: String, qty: Number, issuedTo: String, issuedBy: String, studentId: String,
   issueDate: String, returnDate: String, notes: String,
   status: { type: String, default: 'active' }, createdAt: String, returnedAt: String
 });
@@ -312,7 +312,7 @@ app.post('/api/items', requireAdmin, async (req, res) => {
     if (exists) return res.status(409).json({ error: 'Serial number already exists.' });
     const item = new Item({
       id: uid(), name: String(name).trim(), serial: String(serial).trim().toUpperCase(),
-      catId: String(catId), totalQty: Math.max(1, parseInt(totalQty) || 1),
+      catId: String(catId), totalQty: Math.max(0, Number.isFinite(parseInt(totalQty)) ? parseInt(totalQty) : 0),
       qtyFaulty: 0, qtyMaintenance: 0, qtyRetired: 0,
       location: String(location || '').trim(), notes: String(notes || '').trim(),
       createdAt: new Date().toISOString()
@@ -336,7 +336,7 @@ app.put('/api/items/:id', requireAdmin, async (req, res) => {
     item.name           = String(name).trim();
     item.serial         = String(serial).trim().toUpperCase();
     item.catId          = String(catId);
-    item.totalQty       = Math.max(1, parseInt(totalQty) || item.totalQty);
+    item.totalQty       = Math.max(0, Number.isFinite(parseInt(totalQty)) ? parseInt(totalQty) : item.totalQty);
     item.qtyFaulty      = Math.max(0, parseInt(qtyFaulty) ?? item.qtyFaulty);
     item.qtyMaintenance = Math.max(0, parseInt(qtyMaintenance) ?? item.qtyMaintenance);
     item.qtyRetired     = Math.max(0, parseInt(qtyRetired) ?? item.qtyRetired);
@@ -366,7 +366,7 @@ app.post('/api/items/:id/issue', requireAdmin, async (req, res) => {
   try {
     const item = await Item.findOne({ id: req.params.id });
     if (!item) return res.status(404).json({ error: 'Item not found.' });
-    const { issuedTo, studentId, issueDate, returnDate, notes, qty } = req.body;
+    const { issuedTo, issuedBy, studentId, issueDate, returnDate, notes, qty } = req.body;
     if (!issuedTo || !studentId || !issueDate)
       return res.status(400).json({ error: 'Student name, ID and issue date are required.' });
     const allIssues = await Issue.find({ itemId: req.params.id, status: 'active' }).lean();
@@ -376,12 +376,12 @@ app.post('/api/items/:id/issue', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: `Only ${computed.qtyAvailable} unit(s) available.` });
     const issue = new Issue({
       id: uid(), itemId: req.params.id, qty: issueQty,
-      issuedTo: String(issuedTo).trim(), studentId: String(studentId).trim(),
+      issuedTo: String(issuedTo).trim(), issuedBy: String(issuedBy || '').trim(), studentId: String(studentId).trim(),
       issueDate, returnDate: returnDate || '', notes: notes ? String(notes).trim() : '',
       status: 'active', createdAt: new Date().toISOString()
     });
     await issue.save();
-    await addLog('Issued', item.name, req.session.name, `Qty: ${issueQty} → ${issuedTo} (${studentId})`);
+    await addLog('Issued', item.name, req.session.name, `Qty: ${issueQty} → ${issuedTo} (${studentId})${issuedBy ? ', by ' + issuedBy : ''}`);
     const updatedIssues = await Issue.find({ itemId: req.params.id, status: 'active' }).lean();
     const q = computeQtys(item.toObject(), updatedIssues);
     res.json({ issue: issue.toObject(), item: { ...item.toObject(), ...q } });
